@@ -1,283 +1,221 @@
 <div align="center">
 
-# 🚀 Sovereign Hyper-Local Video & Food Delivery Platform
+# Sovereign Hyper-Local Video & Food Delivery Platform
 
-**A 100% Offline, High-Concurrency, Geodesic-Accurate Food & Short-Form Video Delivery Engine**
+**Production-Grade, 100% Offline, Geodesic-Accurate Food & Video Delivery Engine**
 
 [![Java](https://img.shields.io/badge/Java_21-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)](https://openjdk.org/projects/jdk/21/)
 [![Spring Boot](https://img.shields.io/badge/Spring_Boot_3.4.3-6DB33F?style=for-the-badge&logo=springboot&logoColor=white)](https://spring.io/projects/spring-boot)
 [![PostGIS](https://img.shields.io/badge/PostGIS_16-336791?style=for-the-badge&logo=postgresql&logoColor=white)](https://postgis.net/)
 [![Kubernetes](https://img.shields.io/badge/Kubernetes-326CE5?style=for-the-badge&logo=kubernetes&logoColor=white)](https://kubernetes.io/)
 [![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](LICENSE)
 
 <br/>
 
-[Architecture](docs/ARCHITECTURE.md) • [API Reference](docs/API_REFERENCE.md) • [Operations Runbook](docs/RUNBOOK.md) • [Contributing](CONTRIBUTING.md)
+[Architecture & MDA Specification](docs/ARCHITECTURE.md) • [System Internals & Deep-Dives](docs/SYSTEM_INTERNALS.md) • [REST API Reference](docs/API_REFERENCE.md) • [Operations Runbook](docs/RUNBOOK.md) • [Contributing](CONTRIBUTING.md)
 
 </div>
 
 ---
 
-## ⚡ Executive Summary
+## 📌 Executive Summary & Architectural Philosophy
 
-The **Sovereign Hyper-Local Video & Food Delivery Platform** is an enterprise-grade backend engineered for ultra-dense local food commerce, location-gated video streaming reels, and turn-by-turn road routing. Built to operate **100% offline and self-contained**, it eliminates runtime cloud SaaS dependencies while binding **strictly to a single host port (`8080`)**.
+Modern on-demand food delivery and dispatch platforms commonly fail when deployed into sovereign, air-gapped, or resource-constrained local development environments. These failures stem from three acute distributed systems anti-patterns:
+
+1. **Latitude Area Distortion in Geospatial Engines:** Most commercial tutorials store delivery boundaries in Web Mercator (`EPSG:3857`). Because Web Mercator projects the Earth onto a flat cylinder, scale distortion accelerates with latitude ($k = \sec\phi$). At $37.77^\circ\text{N}$ (San Francisco), areas are distorted by **$+59.6\%$**; at $51.5^\circ\text{N}$ (London), distortion exceeds **$+158\%$**, falsely rejecting valid customer addresses or including unreachable ocean locations.
+2. **Thundering Herd Dispatch Contention:** Broadcasting orders to all couriers simultaneously causes severe lock contention, cellular connection churn, and driver rejection fatigue.
+3. **Transactional Outbox WAL Bloat:** High-throughput transactional outbox tables that clean up old events using standard SQL `DELETE` queries trigger massive PostgreSQL MVCC dead-tuple churn, bloat Write-Ahead Logging (WAL), and invalidate downstream Change Data Capture (CDC) replication slots.
+
+This platform resolves these challenges by strictly enforcing six non-negotiable architectural contracts:
 
 ```
 ┌────────────────────────────────────────────────────────────────────────────────────────┐
-│                              CORE ARCHITECTURAL PILLARS                                │
-├────────────────────────────┬─────────────────────────────┬─────────────────────────────┤
-│   100% Offline & Sovereign │  Single Host Port (8080)    │  Geodesic CRS Precision     │
-│   Zero runtime cloud SaaS  │  Strict CNI encapsulation   │  EPSG:4326 PostGIS only     │
-│   Internal boundary mocks  │  Path-based L7 gateway      │  ST_Covers on WGS 84        │
-├────────────────────────────┼─────────────────────────────┼─────────────────────────────┤
-│   Deterministic Dispatch   │  Zero-WAL Outbox Hardening  │  Hardware GPU Acceleration  │
-│   1-to-1 30s lease locks   │  Daily table partitioning   │  AMD Radeon RX 7900 GRE     │
-│   Anti-race conditional DB │  Pruning via DROP TABLE     │  Mesa VAAPI HLS transcoding │
-└────────────────────────────┴─────────────────────────────┴─────────────────────────────┘
+│                                NON-NEGOTIABLE CONTRACTS                                │
+├────────────────────────────┬────────────────────────────┬──────────────────────────────┤
+│  1. 100% Sovereign         │  2. Single Host Ingress    │  3. Geodesic CRS Precision   │
+│  Zero public cloud SaaS    │  Port 8080 host-bound only │  EPSG:4326 PostGIS only      │
+│  Local boundary mocks      │  CNI encapsulated routing  │  ST_Covers on WGS 84 Spheroid│
+├────────────────────────────┼────────────────────────────┼──────────────────────────────┤
+│  4. Targeted 1-to-1 Lease  │  5. Zero-WAL Outbox Prune  │  6. Hardware Acceleration    │
+│  30-second server lock     │  Daily range partitions    │  AMD RX 7900 GRE VCN 4.0     │
+│  Optimistic @Version DB    │  DROP TABLE retention jobs │  Mesa VAAPI HLS Transcoder   │
+└────────────────────────────┴────────────────────────────┴──────────────────────────────┘
 ```
 
 ---
 
-## 🌟 Key Features
+## 🏛️ System Topology (C4 Level 2: Container Network Interface)
 
-* **100% Offline & Sovereign:** Replaces Twilio, Stripe, APNs, FCM, and Cloudflare Turnstile with dedicated containerized boundary services (`local-payment-service`, `local-sms-gateway`, `ntfy`).
-* **Single Host Port Ingress (`8080`):** Solves workstation port collision by exposing exactly port `8080`. All inter-service communication traverses the internal Kubernetes Container Network Interface (CNI).
-* **Geodesic Spatial Precision (`EPSG:4326`):** Eliminates up to 40% latitude area distortion from Web Mercator (`EPSG:3857`). Boundaries and drop-offs use `geography(Polygon, 4326)` and `geography(Point, 4326)` evaluated natively via `ST_Covers`.
-* **Hyper-Local Dropoff Geometry:** Orders capture precise multi-tenant delivery metadata: building, floor, room number, gate code, and 6-digit handshake PIN.
-* **Deterministic 1-to-1 Dispatch Leases:** Eliminates broadcast race conditions with server-authoritative 30-second lease state progression (`dispatch_lease_expires_at > NOW()`).
-* **Zero-WAL Outbox Partitioning:** `outbox_events` is declaratively partitioned by day and pruned via scheduled `DROP TABLE` calls, leaving **0 dead rows in PostgreSQL WAL**.
-
----
-
-## 📐 Model-Driven Architecture (MDA)
-
-The system isolates domain logic from infrastructure across OMG Model-Driven Architecture (MDA) layers:
-
-### 1. Computation-Independent Model (CIM)
-Captures real-world domain actors and business capabilities:
+All microservices, databases, and message brokers communicate over the internal Kubernetes **Container Network Interface (CNI)**. Exactly one single port (`8080`) is bound to the host workstation:
 
 ```mermaid
-flowchart LR
-    Customer["👤 Customer"]
-    Merchant["🏪 Merchant"]
-    Courier["🛵 Courier"]
-
-    subgraph Capabilities ["Core Platform Capabilities"]
-        Browse["📹 Video Reels Discovery"]
-        Checkout["📍 Geofenced Checkout"]
-        Ledger["💳 Escrow Ledger Hold"]
-        Kitchen["🍳 Kitchen Preparation"]
-        Dispatch["⚡ 1-to-1 Leased Dispatch"]
-        Deliver["🤝 Handshake Delivery"]
+%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#1e293b', 'edgeColor': '#64748b', 'textColor': '#f8fafc', 'primaryTextColor': '#f8fafc'}}}%%
+flowchart TD
+    Client["👤 Client / Browser / Mobile App / Test Runner"]
+    
+    subgraph HostGateway ["Single Host Ingress Gateway (Port 8080)"]
+        Ingress["🚪 Kubernetes Ingress Controller (Ingress-Nginx)<br/>• Host Port: 8080<br/>• Path Routing, CORS, WebSockets, HTTP/2"]
     end
 
-    Merchant --> Browse
-    Customer --> Browse
-    Customer --> Checkout
-    Checkout --> Ledger
-    Ledger --> Kitchen
-    Kitchen --> Dispatch
-    Courier --> Dispatch
-    Dispatch --> Deliver
+    subgraph CNI ["Internal Kubernetes CNI Network (ClusterIP & CoreDNS)"]
+        subgraph CoreServices ["Core Domain Microservices (Java 21 / Project Loom Virtual Threads)"]
+            Catalog["🍽️ catalog-service:8080<br/>• PostGIS 4326 Spheroid ST_Covers<br/>• Uber H3 Res 8 Coarse Binning<br/>• Menu & Reel Catalog"]
+            Order["📦 order-service:8080<br/>• Idempotent Checkout<br/>• Building/Floor/Room Dropoff<br/>• Daily Outbox Partitioning"]
+        end
+
+        subgraph LocalBoundary ["Sovereign Boundary Mocks (Zero Runtime SaaS)"]
+            Payment["💳 local-payment-service:8080<br/>• Double-Entry Balance Ledger<br/>• Zero SaaS Runtime Escrow"]
+            SMS["📱 local-sms-gateway:8080<br/>• Circular Buffer Memory Storage<br/>• Instant OTP Inspection API"]
+            Push["🔔 ntfy:80<br/>• WebSocket & SSE Push Broker"]
+        end
+
+        subgraph Datastores ["Internal Datastores & Replication"]
+            Postgres[("🗄️ PostgreSQL 16 (PostGIS 3.4)<br/>• Hardened CDC: max_slot_wal_keep_size=-1<br/>• wal_level=logical<br/>• GiST Spatial R-Tree Indexes")]
+        end
+    end
+
+    Client -->|HTTP / WebSockets on Port 8080| Ingress
+    Ingress -->|/api/v1/catalog/*| Catalog
+    Ingress -->|/api/v1/orders/*| Order
+    Ingress -->|/api/v1/payments/*| Payment
+    Ingress -->|/api/v1/sms/* & /admin/sms-inbox| SMS
+    Ingress -->|/push/*| Push
+
+    Catalog -->|ST_Covers queries| Postgres
+    Order -->|Orders & Partitioned Outbox| Postgres
+    Payment -->|Ledger accounts & Journal entries| Postgres
+    Order -.->|Geofence verification| Catalog
+    Order -.->|Escrow HOLD request| Payment
+
+    classDef clientNode fill:#0f172a,stroke:#38bdf8,stroke-width:2px,color:#f8fafc;
+    classDef gatewayNode fill:#0f172a,stroke:#818cf8,stroke-width:2px,color:#f8fafc;
+    classDef serviceNode fill:#0f172a,stroke:#34d399,stroke-width:2px,color:#f8fafc;
+    classDef boundaryNode fill:#0f172a,stroke:#f59e0b,stroke-width:2px,color:#f8fafc;
+    classDef storeNode fill:#1e1b4b,stroke:#a78bfa,stroke-width:2px,color:#f8fafc;
+
+    class Client clientNode;
+    class Ingress gatewayNode;
+    class Catalog,Order serviceNode;
+    class Payment,SMS,Push boundaryNode;
+    class Postgres storeNode;
 ```
-
-### 2. Platform-Independent Model (PIM)
-Class models, state progressions, and concurrency contracts:
-
-```mermaid
-classDiagram
-    class Customer {
-        +UUID id
-        +String phone
-        +GeoPoint location
-        +placeOrder()
-    }
-    class Restaurant {
-        +UUID id
-        +String name
-        +Polygon deliveryZone
-        +Long h3Res8
-        +checkCoverage() Boolean
-    }
-    class Order {
-        +UUID id
-        +OrderStatus status
-        +Decimal totalAmount
-        +GeoPoint dropoffLocation
-        +String dropoffBuilding
-        +String dropoffRoom
-        +String dropoffGateCode
-        +String verificationPin
-        +claimDispatch() Boolean
-    }
-    class Courier {
-        +UUID id
-        +String phone
-        +CourierStatus status
-        +GeoPoint currentLocation
-    }
-
-    Customer "1" --> "0..*" Order : places
-    Restaurant "1" --> "0..*" Order : fulfills
-    Order "1" --> "0..1" Courier : assigned_to
-```
-
-### 3. Platform-Specific Model (PSM)
-Relational DDL, Geodesic PostGIS 4326 geography, and partitioned transactional outbox:
-
-```mermaid
-erDiagram
-    RESTAURANTS ||--o{ ORDERS : fulfills
-    ORDERS ||--|{ ORDER_ITEMS : contains
-    ORDERS ||--|| OUTBOX_EVENTS : emits
-
-    RESTAURANTS {
-        uuid id PK
-        varchar name
-        geography location "Point 4326"
-        geography delivery_zone "Polygon 4326"
-        bigint h3_res8
-    }
-
-    ORDERS {
-        uuid id PK
-        uuid user_id
-        uuid restaurant_id
-        uuid courier_id
-        varchar status
-        geography dropoff_location "Point 4326"
-        varchar dropoff_building
-        varchar dropoff_floor
-        varchar dropoff_room
-        varchar dropoff_gate_code
-        varchar verification_pin
-        timestamptz dispatch_lease_expires_at
-        bigint version "@Version"
-    }
-
-    OUTBOX_EVENTS {
-        uuid id PK
-        timestamptz created_at PK "RANGE Partition"
-        varchar aggregate_type
-        uuid aggregate_id
-        varchar event_type
-        jsonb payload
-    }
-```
-
-> 📖 *For complete sequence diagrams, state machines, and mathematical proofs, see [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).*
 
 ---
 
-## 🌐 Unified Single Ingress Gateway (Port 8080)
+## 🔬 Core Architectural Breakthroughs
 
-All external traffic terminates strictly at **Host Port 8080**:
+### 1. Geodesic CRS Precision (`geography(Polygon, 4326)` vs `geometry(3857)`)
+* Storing service zones in Web Mercator (`EPSG:3857`) introduces up to **$+60\%$** scale distortion at non-equatorial latitudes.
+* All service zones and customer coordinates are strictly typed as **`geography(Polygon, 4326)`** and **`geography(Point, 4326)`**.
+* Containment queries execute natively on the WGS 84 ellipsoid via `ST_Covers`:
+  ```sql
+  SELECT r.id, r.name FROM restaurants r
+  WHERE r.is_active = true
+    AND ST_Covers(r.delivery_zone, ST_SetSRID(ST_MakePoint(-122.4194, 37.7749), 4326)::geography);
+  ```
+* Unlike `ST_Contains` (which excludes perimeter edges), `ST_Covers` satisfies boundary closure: points lying directly on the delivery border evaluate to `TRUE`.
 
-| Path Pattern | Target Microservice | Protocol | Description |
-| :--- | :--- | :--- | :--- |
-| `/api/v1/catalog/*` | `catalog-service:8080` | HTTP/2 | Restaurant onboarding, menus, `ST_Covers` geofencing |
-| `/api/v1/orders/*` | `order-service:8080` | HTTP/2 | Order checkout, dispatch leases, outbox admin |
-| `/api/v1/payments/*` | `local-payment-service:8080` | HTTP/2 | Double-entry balance holds, captures, refunds |
-| `/api/v1/sms/*` | `local-sms-gateway:8080` | HTTP/2 | High-throughput mock SMS sending & instant OTP inspection |
-| `/admin/sms-inbox` | `local-sms-gateway:8080` | HTML/SSE | Real-time web inbox for manual QA testing |
-| `/push/*` | `ntfy:80` | HTTP & WS | Sovereign push notifications & WebSockets |
+### 2. Two-Stage Spatial Resolution (Uber H3 Res 8 + PostGIS Fine)
+* **Stage 1 (Coarse In-Memory Filter):** Customer coordinates map to a 64-bit integer H3 cell in $O(1)$ CPU time. A 1-ring expansion (`kRing(H3, 1)`) retrieves candidate restaurants within 7 discrete hexagons.
+* **Stage 2 (Fine Geodesic Containment):** Only the filtered candidate restaurants are evaluated with PostGIS `ST_Covers`, reducing spatial query latency from $O(N)$ polygon intersections to $O(1)$ indexed integer lookups.
+
+### 3. Zero-WAL Transactional Outbox Partition Pruning
+* High-volume order processing writes outbox events within the same ACID transaction as the order.
+* Conventional systems run `DELETE FROM outbox_events WHERE created_at < ...`, causing massive PostgreSQL dead-tuple bloat (`n_dead_tup`), autovacuum page-locking, and WAL stream saturation.
+* This platform declaratively partitions `outbox_events` by daily range:
+  ```sql
+  CREATE TABLE outbox_events (
+      id UUID NOT NULL,
+      aggregate_type VARCHAR(64) NOT NULL,
+      aggregate_id UUID NOT NULL,
+      event_type VARCHAR(64) NOT NULL,
+      payload JSONB NOT NULL,
+      created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+      PRIMARY KEY (id, created_at)
+  ) PARTITION BY RANGE (created_at);
+  ```
+* A scheduled daemon drops partitions older than 7 days via **`DROP TABLE <partition_name>;`**. This triggers an OS filesystem `unlink()` on the physical storage file, generating **`n_dead_tup == 0`** and zero WAL amplification.
 
 ---
 
-## 🚀 Quickstart
+## 📊 Workstation Resource Allocation Budget (Section 4.2)
 
-### 1. Prerequisites
-* **Java 21** (`java -version`)
-* **Docker Engine 26+** (`docker ps`)
-* **Git**
+Every container declares strict CPU and memory bounds matching the resource budget in Section 4.2 of [`plan.md`](file:///home/shreyas/plan.md):
 
-### 2. Run All Automated Verification Gates (Unit & Integration)
+| Container / Pod Name | CPU Request | CPU Limit | Memory Request | Memory Limit | QoS Class |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| `ingress-nginx-controller` | `100m` | `500m` | `128Mi` | `256Mi` | Burstable |
+| `catalog-service` | `200m` | `1000m` | `384Mi` | `768Mi` | Burstable |
+| `order-service` | `300m` | `1500m` | `512Mi` | `1024Mi` | Burstable |
+| `local-payment-service` | `100m` | `500m` | `256Mi` | `384Mi` | Burstable |
+| `local-sms-gateway` | `50m` | `200m` | `64Mi` | `128Mi` | Burstable |
+| `postgres` (PostGIS 16) | `500m` | `2000m` | `1536Mi` | `3072Mi` | Burstable |
+
+---
+
+## ⚡ Quickstart & Verification
+
+### 1. Build Reactor & Execute Test Suite
+
 ```bash
+# Clone the repository
 git clone https://github.com/BlackPool25/delivery-platform.git
 cd delivery-platform
 
-# Compiles and runs all test suites with Testcontainers PostGIS
+# Compile and run the complete test reactor (includes PostGIS Testcontainers)
 ./mvnw clean test
 ```
 
-### 3. Start Local Microservices Cluster via Docker Compose
+### 2. Run Local Verification Harness
+
 ```bash
-docker compose -f docker/docker-compose-phase2.yaml up -d --build
-```
+# Verify spatial coverage calculations on PostGIS
+./mvnw -pl services/catalog-service test -Dtest=CatalogSpatialVerificationTest
 
-### 4. Verify Gateway Health
-```bash
-# Verify Catalog Service
-curl -s http://localhost:8085/actuator/health | jq .
-
-# Verify Order Service
-curl -s http://localhost:8086/actuator/health | jq .
-
-# Verify Payment Ledger
-curl -s http://localhost:8082/actuator/health | jq .
-
-# Verify SMS Gateway
-curl -s http://localhost:8083/actuator/health | jq .
+# Verify daily outbox partitioning and DROP TABLE mechanics
+./mvnw -pl services/order-service test -Dtest=OrderOutboxPartitionVerificationTest
 ```
 
 ---
 
-## 🧪 Verification Gates & Execution Proof
-
-### Phase 2 Verification Results
-```text
-[INFO] Reactor Summary:
-[INFO] 
-[INFO] delivery-platform .................................. SUCCESS
-[INFO] local-payment-service .............................. SUCCESS
-[INFO] local-sms-gateway .................................. SUCCESS
-[INFO] catalog-service .................................... SUCCESS (PostGIS ST_Covers Gate: PASSED)
-[INFO] order-service ...................................... SUCCESS (Zero-WAL Outbox Prune Gate: PASSED)
-[INFO] ------------------------------------------------------------------------
-[INFO] BUILD SUCCESS
-```
-
-1. **PostGIS `ST_Covers` Geodesic Precision Test:**
-   * Interior Point (`-122.4150, 37.7750`) $\rightarrow$ `ST_Covers = true`.
-   * Boundary Edge Point (`-122.4000, 37.7750`) $\rightarrow$ `ST_Covers = true` (validates boundary acceptance on WGS84 ellipsoid).
-   * Exterior Point (`-122.5000, 37.7750`) $\rightarrow$ `ST_Covers = false`.
-2. **Zero-WAL Outbox Pruning Test:**
-   * Pre-creates upcoming daily range partitions (`outbox_events_yYYYYmMMdDD`).
-   * Evaluates expired partitions older than 7 days.
-   * Executes `DROP TABLE` to instantly reclaim disk blocks with **`n_dead_tup == 0`** dead tuples.
-
----
-
-## 📂 Repository Layout
+## 📁 Repository Structure
 
 ```text
 delivery-platform/
-├── .github/workflows/          # Automated GitHub Actions CI workflow
+├── .github/
+│   └── workflows/
+│       ├── ci.yml                     # Continuous Integration pipeline
+│       └── docs.yml                   # MkDocs Material automated deploy
 ├── docker/
-│   ├── docker-compose-phase2.yaml # Local 100% offline stack composition
-│   └── postgresql.conf         # Hardened CDC & max_slot_wal_keep_size=-1
+│   ├── postgresql.conf                # Hardened CDC & WAL Postgres config
+│   ├── Dockerfile.service             # Multi-stage Java 21 containerfile
+│   └── docker-compose-phase2.yaml     # Phase 2 local container composition
 ├── docs/
-│   ├── ARCHITECTURE.md         # Full MDA specification & Mermaid diagrams
-│   ├── API_REFERENCE.md        # Complete OpenAPI / REST documentation
-│   └── RUNBOOK.md              # Operations, failure modes, and recovery
+│   ├── ARCHITECTURE.md                # arc42 & OMG MDA formal specification
+│   ├── SYSTEM_INTERNALS.md            # Deep math, H3 bitfields & storage internals
+│   ├── API_REFERENCE.md               # Complete REST API & curl reference
+│   └── RUNBOOK.md                     # Production operations runbook
 ├── k8s/
-│   ├── catalog-service/        # Kubernetes manifests with strict resource budget
-│   ├── ingress/                # Single-port (8080) L7 routing definitions
-│   ├── order-service/          # Deployment with requests: 300m/512Mi, limits: 1500m/1024Mi
-│   └── postgres/               # PostGIS 16 StatefulSet with logical replication
-├── migrations/                 # Centralized Flyway DDL migrations
+│   ├── ingress/                       # Single-port ingress manifests (port 8080)
+│   ├── postgres/                      # PostGIS 16 StatefulSet with strict cgroups
+│   ├── catalog-service/               # Catalog deployment & ClusterIP service
+│   └── order-service/                 # Order deployment & ClusterIP service
+├── migrations/
+│   ├── catalog-service/               # Flyway V1 DDL: PostGIS geography types
+│   └── order-service/                 # Flyway V1 DDL: Partitioned outbox & orders
 ├── services/
-│   ├── catalog-service/        # Spring Boot 3 PostGIS catalog microservice
-│   ├── local-payment-service/  # Internal double-entry ledger gateway
-│   ├── local-sms-gateway/      # In-memory circular buffer SMS gateway
-│   └── order-service/          # Order checkout, dispatch leases & outbox pruning
-├── pom.xml                     # Maven parent multi-module definition
-└── CONTRIBUTING.md             # Developer guidelines & zero-TODO contracts
+│   ├── catalog-service/               # Spring Boot 3 / Hibernate Spatial 6.4
+│   ├── order-service/                 # Spring Boot 3 / Outbox Partition Scheduler
+│   ├── local-payment-service/         # Sovereign double-entry ledger mock
+│   └── local-sms-gateway/             # Circular-buffer mock SMS gateway
+├── mkdocs.yml                         # Material for MkDocs documentation configuration
+├── pom.xml                            # Root Maven multi-module reactor
+└── README.md                          # Repository storefront & architectural brief
 ```
 
 ---
 
 ## 📜 License
 
-Licensed under the [MIT License](LICENSE). Copyright © 2026 Shreyas S Joshi.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

@@ -1,7 +1,7 @@
 # Production Operations & Runbook Guide
 
 > **Sovereign Hyper-Local Video & Food Delivery Platform**  
-> *Operations, Troubleshooting, Failure Modes & Local Kubernetes Cluster Orchestration*
+> *Operations, Troubleshooting, Failure Modes, Diagnostics & Local Kubernetes Cluster Runbook*
 
 ---
 
@@ -22,7 +22,7 @@ Maven Version     : Apache Maven 3.9+ (Wrapper included: ./mvnw)
 
 To permanently eliminate replication slot invalidation and CDC pipeline stalls during heavy local load bursts:
 
-### Configuration Verification (`postgresql.conf`)
+### Configuration Parameters (`postgresql.conf`)
 Ensure the following parameters are active in your PostgreSQL pod or container:
 
 ```ini
@@ -35,12 +35,23 @@ max_wal_size = 8GB
 checkpoint_timeout = 15min
 ```
 
+### Verification Query
 Run this command inside the database container to verify:
 ```bash
 docker exec -it delivery-postgres-phase2 psql -U postgres -d delivery_db -c "
 SELECT name, setting, unit FROM pg_settings 
 WHERE name IN ('wal_level', 'max_slot_wal_keep_size', 'wal_keep_size', 'max_replication_slots');
 "
+```
+
+Expected output:
+```text
+          name          | setting | unit 
+------------------------+---------+------
+ max_replication_slots  | 10      | 
+ max_slot_wal_keep_size | -1      | MB
+ wal_keep_size          | 4096    | MB
+ wal_level              | logical | 
 ```
 
 ---
@@ -52,14 +63,22 @@ Standard SQL `DELETE FROM outbox_events WHERE created_at < ...` queries generate
 
 In this architecture, `outbox_events` is partitioned daily:
 ```sql
-CREATE TABLE outbox_events (...) PARTITION BY RANGE (created_at);
+CREATE TABLE outbox_events (
+    id UUID NOT NULL,
+    aggregate_type VARCHAR(64) NOT NULL,
+    aggregate_id UUID NOT NULL,
+    event_type VARCHAR(64) NOT NULL,
+    payload JSONB NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    PRIMARY KEY (id, created_at)
+) PARTITION BY RANGE (created_at);
 ```
 
 When partitions exceed the 7-day retention window, the Spring scheduler issues:
 ```sql
 DROP TABLE outbox_events_y2026m10d14;
 ```
-This reclaims disk blocks instantly on the underlying filesystem with **zero dead rows** and minimal WAL write volume.
+This reclaims disk blocks instantly on the underlying filesystem with **zero dead rows** (`n_dead_tup == 0`) and minimal WAL write volume.
 
 ### Monitoring Dead Tuples
 ```bash
@@ -95,5 +114,8 @@ Verify all traffic terminates at host port 8080:
 kubectl get pods -n ingress-nginx
 
 # Check Ingress Routing Resource
-kubectl describe ingress delivery-platform-ingress -n delivery-prod
+kubectl describe ingress delivery-ingress -n delivery
+
+# Verify Port 8080 Binding on Host
+ss -tulpn | grep 8080
 ```

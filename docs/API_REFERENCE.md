@@ -10,7 +10,7 @@
 - [Order Service (`/api/v1/orders/*`)](#2-order-service)
 - [Local Payment Ledger Service (`/api/v1/payments/*`)](#3-local-payment-ledger-service)
 - [Local SMS Gateway (`/api/v1/sms/*`)](#4-local-sms-gateway)
-- [Push Notification Broker (`/push/*`)](#5-push-notification-broker)
+- [Push Notification Broker (`/push/*`)](#5-push-notification-broker-ntfy)
 
 ---
 

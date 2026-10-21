@@ -1,0 +1,59 @@
+site_name: Sovereign Hyper-Local Delivery Platform
+site_description: Production-Grade, 100% Offline, Geodesic-Accurate Food & Video Delivery Engine
+site_author: Antigravity Systems Team
+repo_url: https://github.com/BlackPool25/delivery-platform
+repo_name: BlackPool25/delivery-platform
+
+theme:
+  name: material
+  palette:
+    - scheme: slate
+      primary: indigo
+      accent: deep purple
+      toggle:
+        icon: material/weather-night
+        name: Switch to light mode
+    - scheme: default
+      primary: indigo
+      accent: deep purple
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to dark mode
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - toc.follow
+    - content.code.copy
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - admonition
+  - pymdownx.details
+  - pymdownx.arithmatex:
+      generic: true
+
+extra_javascript:
+  - https://polyfill.io/v3/polyfill.min.js?features=es6
+  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
+
+nav:
+  - Overview: index.md
+  - Architecture & MDA: ARCHITECTURE.md
+  - System Internals: SYSTEM_INTERNALS.md
+  - REST API Reference: API_REFERENCE.md
+  - Operations Runbook: RUNBOOK.md
