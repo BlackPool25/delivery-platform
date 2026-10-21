@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: digital-twin-ui
+  namespace: delivery-prod
+  labels:
+    app: digital-twin-ui
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: digital-twin-ui
+  template:
+    metadata:
+      labels:
+        app: digital-twin-ui
+    spec:
+      containers:
+      - name: digital-twin-ui
+        image: delivery/digital-twin-ui:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 80
+          name: http
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 80
+          initialDelaySeconds: 3
+          periodSeconds: 5
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 200m
+            memory: 128Mi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: digital-twin-ui
+  namespace: delivery-prod
+  labels:
+    app: digital-twin-ui
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: 80
+    name: http
+  selector:
+    app: digital-twin-ui
