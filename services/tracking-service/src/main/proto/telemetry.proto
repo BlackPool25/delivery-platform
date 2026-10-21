@@ -1,0 +1,62 @@
+syntax = "proto3";
+
+package com.delivery.tracking.grpc;
+
+option java_multiple_files = true;
+option java_package = "com.delivery.tracking.grpc";
+option java_outer_classname = "TelemetryProto";
+
+service CourierTelemetryService {
+    // Unary telemetry ping ingestion
+    rpc IngestTelemetry (TelemetryPingRequest) returns (TelemetryResponse);
+
+    // Client streaming telemetry pings
+    rpc StreamTelemetry (stream TelemetryPingRequest) returns (TelemetryStreamSummary);
+
+    // Query courier location
+    rpc GetCourierLocation (CourierLocationRequest) returns (CourierLocationResponse);
+}
+
+message TelemetryPingRequest {
+    string courier_id = 1;
+    double latitude = 2;
+    double longitude = 3;
+    int64 timestamp_epoch_ms = 4;
+    double speed_kmh = 5;
+    double heading = 6;
+    double altitude = 7;
+    double accuracy = 8;
+}
+
+message TelemetryResponse {
+    string status = 1;
+    bool accepted = 2;
+    double calculated_speed_kmh = 3;
+    double max_allowed_speed_kmh = 4;
+    string message = 5;
+    int64 timestamp_epoch_ms = 6;
+}
+
+message TelemetryStreamSummary {
+    int32 total_received = 1;
+    int32 total_accepted = 2;
+    int32 total_rejected = 3;
+    int64 duration_ms = 4;
+}
+
+message CourierLocationRequest {
+    string courier_id = 1;
+}
+
+message CourierLocationResponse {
+    string courier_id = 1;
+    double latitude = 2;
+    double longitude = 3;
+    double speed_kmh = 4;
+    double heading = 5;
+    int64 timestamp_epoch_ms = 6;
+    string h3_index = 7;
+    bool is_flagged = 8;
+    string fraud_reason = 9;
+    bool found = 10;
+}
