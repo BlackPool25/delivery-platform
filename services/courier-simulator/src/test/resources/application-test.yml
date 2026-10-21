@@ -1,0 +1,11 @@
+server:
+  port: 0
+
+simulator:
+  order-service-url: http://localhost:8080
+  tracking-service-url: http://localhost:8080
+  valhalla-service-url: http://localhost:8002
+  tick-rate-ms: 3000
+  speed-kmh: 28.0
+  auto-dispatch-enabled: false
+  courier-count: 20

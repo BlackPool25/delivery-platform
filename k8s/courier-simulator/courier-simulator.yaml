@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: courier-simulator
+  namespace: delivery-prod
+  labels:
+    app: courier-simulator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: courier-simulator
+  template:
+    metadata:
+      labels:
+        app: courier-simulator
+    spec:
+      containers:
+      - name: courier-simulator
+        image: delivery/courier-simulator:latest
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: "local"
+        - name: ORDER_SERVICE_URL
+          value: "http://order-service:8080"
+        - name: TRACKING_SERVICE_URL
+          value: "http://tracking-service:8080"
+        - name: VALHALLA_SERVICE_URL
+          value: "http://valhalla-service:8002"
+        - name: SIMULATOR_TICK_RATE_MS
+          value: "3000"
+        - name: SIMULATOR_AUTO_DISPATCH
+          value: "true"
+        ports:
+        - containerPort: 8080
+          name: http
+        livenessProbe:
+          httpGet:
+            path: /actuator/health/liveness
+            port: 8080
+          initialDelaySeconds: 15
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /actuator/health/readiness
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 5
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 256Mi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: courier-simulator
+  namespace: delivery-prod
+  labels:
+    app: courier-simulator
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8080
+    targetPort: 8080
+    name: http
+  selector:
+    app: courier-simulator

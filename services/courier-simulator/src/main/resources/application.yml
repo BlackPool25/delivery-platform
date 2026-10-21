@@ -1,0 +1,30 @@
+server:
+  port: 8080
+  shutdown: graceful
+
+spring:
+  application:
+    name: courier-simulator
+  threads:
+    virtual:
+      enabled: true
+
+simulator:
+  order-service-url: ${ORDER_SERVICE_URL:http://localhost:8086}
+  tracking-service-url: ${TRACKING_SERVICE_URL:http://localhost:8087}
+  valhalla-service-url: ${VALHALLA_SERVICE_URL:http://localhost:8002}
+  tick-rate-ms: ${SIMULATOR_TICK_RATE_MS:3000}
+  speed-kmh: ${SIMULATOR_SPEED_KMH:28.0}
+  auto-dispatch-enabled: ${SIMULATOR_AUTO_DISPATCH:true}
+  courier-count: 20
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true

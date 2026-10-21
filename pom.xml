@@ -38,6 +38,7 @@
         <module>services/tracking-service</module>
         <module>services/media-service</module>
         <module>services/transcode-worker</module>
+        <module>services/courier-simulator</module>
     </modules>
 
     <dependencyManagement>
