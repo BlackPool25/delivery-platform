@@ -1,0 +1,2102 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Production-Grade, 100% Offline, Geodesic-Accurate Food & Video Delivery Engine">
+      
+      
+        <meta name="author" content="Antigravity Systems Team">
+      
+      
+      
+        <link rel="prev" href="..">
+      
+      
+        <link rel="next" href="../SYSTEM_INTERNALS/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Architecture & MDA - Sovereign Hyper-Local Delivery Platform</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="deep-purple">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#distributed-systems-architecture-model-driven-architecture-mda-specification" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Sovereign Hyper-Local Delivery Platform" class="md-header__button md-logo" aria-label="Sovereign Hyper-Local Delivery Platform" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Sovereign Hyper-Local Delivery Platform
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Architecture & MDA
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="deep-purple"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="deep-purple"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/BlackPool25/delivery-platform" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    BlackPool25/delivery-platform
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Overview
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    <li class="md-tabs__item md-tabs__item--active">
+      <a href="./" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture & MDA
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../SYSTEM_INTERNALS/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  System Internals
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../API_REFERENCE/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  REST API Reference
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../RUNBOOK/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Operations Runbook
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Sovereign Hyper-Local Delivery Platform" class="md-nav__button md-logo" aria-label="Sovereign Hyper-Local Delivery Platform" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Sovereign Hyper-Local Delivery Platform
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/BlackPool25/delivery-platform" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    BlackPool25/delivery-platform
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture & MDA
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture & MDA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-architectural-philosophy-non-negotiable-contracts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Architectural Philosophy &amp; Non-Negotiable Contracts
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-architecture-decision-records-adrs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Architecture Decision Records (ADRs)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Architecture Decision Records (ADRs)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#adr-001-geodesic-ellipsoidal-calculations-geography4326-vs-web-mercator-geometry3857" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ADR-001: Geodesic Ellipsoidal Calculations (geography(4326)) vs Web Mercator (geometry(3857))
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#adr-002-two-stage-spatial-resolution-uber-h3-res-8-coarse-postgis-geodesic-fine" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ADR-002: Two-Stage Spatial Resolution (Uber H3 Res 8 Coarse + PostGIS Geodesic Fine)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#adr-003-deterministic-1-to-1-dispatch-lease-state-machine-vs-thundering-herd-broadcast" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ADR-003: Deterministic 1-to-1 Dispatch Lease State Machine vs Thundering Herd Broadcast
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#adr-004-zero-wal-transactional-outbox-pruning-via-daily-range-drop-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ADR-004: Zero-WAL Transactional Outbox Pruning via Daily Range DROP TABLE
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#adr-005-single-host-port-ingress-8080-kubernetes-cni-encapsulation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ADR-005: Single Host Port Ingress (8080) &amp; Kubernetes CNI Encapsulation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#adr-006-hardware-gpu-passthrough-with-internal-concurrency-scaling-amd-rx-7900-gre" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ADR-006: Hardware GPU Passthrough with Internal Concurrency Scaling (AMD RX 7900 GRE)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-omg-model-driven-architecture-mda-realization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. OMG Model-Driven Architecture (MDA) Realization
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. OMG Model-Driven Architecture (MDA) Realization">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-computation-independent-model-cim" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 Computation-Independent Model (CIM)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3.1 Computation-Independent Model (CIM)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-bpmn-20-business-process-swimlane-choreography" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A. BPMN 2.0 Business Process Swimlane Choreography
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#b-iso-19107-geographic-information-domain-conceptual-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        B. ISO 19107 Geographic Information Domain Conceptual Model
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c-ubiquitous-domain-vocabulary-semantic-invariants" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C. Ubiquitous Domain Vocabulary &amp; Semantic Invariants
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-platform-independent-model-pim" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 Platform-Independent Model (PIM)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3.2 Platform-Independent Model (PIM)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-domain-driven-design-ddd-bounded-context-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A. Domain-Driven Design (DDD) Bounded Context Architecture
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#b-deterministic-order-lifecycle-state-machine-statechart" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        B. Deterministic Order Lifecycle State Machine (Statechart)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c-formal-state-transition-matrix-with-invariants-rollbacks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C. Formal State Transition Matrix with Invariants &amp; Rollbacks
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-platform-specific-model-psm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 Platform-Specific Model (PSM)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3.3 Platform-Specific Model (PSM)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-physical-relational-geospatial-schema-postgresql-16-postgis-34" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A. Physical Relational &amp; Geospatial Schema (PostgreSQL 16 / PostGIS 3.4)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#b-postgis-spatial-indexing-engine-mechanics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        B. PostGIS Spatial Indexing Engine Mechanics
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c-zero-wal-partition-unlinking-physical-mechanics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C. Zero-WAL Partition Unlinking Physical Mechanics
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-end-to-end-execution-trace-the-lifecycle-of-a-request" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. End-to-End Execution Trace: The Lifecycle of a Request
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-failure-mode-and-effects-analysis-fmea" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Failure Mode and Effects Analysis (FMEA)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-observability-telemetry-quality-gates" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Observability, Telemetry &amp; Quality Gates
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../SYSTEM_INTERNALS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System Internals
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../API_REFERENCE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    REST API Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../RUNBOOK/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Operations Runbook
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-architectural-philosophy-non-negotiable-contracts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Architectural Philosophy &amp; Non-Negotiable Contracts
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-architecture-decision-records-adrs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Architecture Decision Records (ADRs)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Architecture Decision Records (ADRs)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#adr-001-geodesic-ellipsoidal-calculations-geography4326-vs-web-mercator-geometry3857" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ADR-001: Geodesic Ellipsoidal Calculations (geography(4326)) vs Web Mercator (geometry(3857))
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#adr-002-two-stage-spatial-resolution-uber-h3-res-8-coarse-postgis-geodesic-fine" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ADR-002: Two-Stage Spatial Resolution (Uber H3 Res 8 Coarse + PostGIS Geodesic Fine)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#adr-003-deterministic-1-to-1-dispatch-lease-state-machine-vs-thundering-herd-broadcast" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ADR-003: Deterministic 1-to-1 Dispatch Lease State Machine vs Thundering Herd Broadcast
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#adr-004-zero-wal-transactional-outbox-pruning-via-daily-range-drop-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ADR-004: Zero-WAL Transactional Outbox Pruning via Daily Range DROP TABLE
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#adr-005-single-host-port-ingress-8080-kubernetes-cni-encapsulation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ADR-005: Single Host Port Ingress (8080) &amp; Kubernetes CNI Encapsulation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#adr-006-hardware-gpu-passthrough-with-internal-concurrency-scaling-amd-rx-7900-gre" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ADR-006: Hardware GPU Passthrough with Internal Concurrency Scaling (AMD RX 7900 GRE)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-omg-model-driven-architecture-mda-realization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. OMG Model-Driven Architecture (MDA) Realization
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. OMG Model-Driven Architecture (MDA) Realization">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-computation-independent-model-cim" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 Computation-Independent Model (CIM)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3.1 Computation-Independent Model (CIM)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-bpmn-20-business-process-swimlane-choreography" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A. BPMN 2.0 Business Process Swimlane Choreography
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#b-iso-19107-geographic-information-domain-conceptual-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        B. ISO 19107 Geographic Information Domain Conceptual Model
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c-ubiquitous-domain-vocabulary-semantic-invariants" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C. Ubiquitous Domain Vocabulary &amp; Semantic Invariants
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-platform-independent-model-pim" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 Platform-Independent Model (PIM)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3.2 Platform-Independent Model (PIM)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-domain-driven-design-ddd-bounded-context-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A. Domain-Driven Design (DDD) Bounded Context Architecture
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#b-deterministic-order-lifecycle-state-machine-statechart" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        B. Deterministic Order Lifecycle State Machine (Statechart)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c-formal-state-transition-matrix-with-invariants-rollbacks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C. Formal State Transition Matrix with Invariants &amp; Rollbacks
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-platform-specific-model-psm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 Platform-Specific Model (PSM)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3.3 Platform-Specific Model (PSM)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-physical-relational-geospatial-schema-postgresql-16-postgis-34" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A. Physical Relational &amp; Geospatial Schema (PostgreSQL 16 / PostGIS 3.4)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#b-postgis-spatial-indexing-engine-mechanics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        B. PostGIS Spatial Indexing Engine Mechanics
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c-zero-wal-partition-unlinking-physical-mechanics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C. Zero-WAL Partition Unlinking Physical Mechanics
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-end-to-end-execution-trace-the-lifecycle-of-a-request" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. End-to-End Execution Trace: The Lifecycle of a Request
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-failure-mode-and-effects-analysis-fmea" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Failure Mode and Effects Analysis (FMEA)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-observability-telemetry-quality-gates" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Observability, Telemetry &amp; Quality Gates
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="distributed-systems-architecture-model-driven-architecture-mda-specification">Distributed Systems Architecture &amp; Model-Driven Architecture (MDA) Specification</h1>
+<blockquote>
+<p><strong>Sovereign Hyper-Local Video &amp; Food Delivery Platform</strong><br />
+<em>Production-Grade Distributed System Design, Formal Metamodeling &amp; Architectural Decision Records (ADRs)</em><br />
+Master Specification Source: <a href="file:///home/shreyas/plan.md"><code>/home/shreyas/plan.md</code></a> • Standard Alignment: <strong>arc42</strong> &amp; <strong>OMG MDA® (CIM / PIM / PSM)</strong></p>
+</blockquote>
+<hr />
+<h2 id="1-architectural-philosophy-non-negotiable-contracts">1. Architectural Philosophy &amp; Non-Negotiable Contracts</h2>
+<p>Modern on-demand food delivery and dispatch platforms commonly fail when deployed into sovereign, air-gapped, or resource-constrained local environments. These failures trace back to three fatal distributed systems anti-patterns:</p>
+<ol>
+<li><strong>Spatial Boundary Distortion via Planar Projections:</strong> Naive geospatial implementations store geographic boundaries using Web Mercator (<code>EPSG:3857</code>) for simple Euclidean planar calculations. Because Web Mercator projects the Earth onto a flat cylinder, scale distortion accelerates with latitude (<span class="arithmatex">\(k = \sec(\phi)\)</span>). In cities like London (<span class="arithmatex">\(51.5^\circ\text{N}\)</span>) or Seattle (<span class="arithmatex">\(47.6^\circ\text{N}\)</span>), planar distance and area calculations produce <strong><span class="arithmatex">\(+48\%\)</span> to <span class="arithmatex">\(+60\%\)</span> distortion</strong>, causing delivery perimeters to falsely reject valid customer dropoffs or include unserviceable locations.</li>
+<li><strong>Thundering Herd Dispatch Contention &amp; Driver Fatigue:</strong> Broadcasting order offers to all active couriers within a radius creates extreme database lock contention, packet storms on mobile cellular connections, and driver fatigue caused by millisecond race conditions where acceptance clicks fail.</li>
+<li><strong>Database Write Amplification via Transactional Outbox Bloat:</strong> Implementing the Transactional Outbox pattern with SQL <code>DELETE</code> queries on high-throughput event tables triggers severe PostgreSQL Multi-Version Concurrency Control (MVCC) dead-tuple churn. Dead tuples bloat disk pages, exhaust the autovacuum daemon, saturate the Write-Ahead Log (WAL), and invalidate downstream Change Data Capture (CDC) replication slots.</li>
+</ol>
+<p>To eliminate these failure modes, this platform enforces six non-negotiable architectural contracts:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>┌────────────────────────────────────────────────────────────────────────────────────────┐
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>│                                NON-NEGOTIABLE CONTRACTS                                │
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>├────────────────────────────┬────────────────────────────┬──────────────────────────────┤
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>│  1. 100% Sovereign         │  2. Single Host Ingress    │  3. Geodesic CRS Precision   │
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>│  Zero public cloud SaaS    │  Port 8080 host-bound only │  EPSG:4326 PostGIS only      │
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>│  Local boundary mocks      │  CNI encapsulated routing  │  ST_Covers on WGS 84 Spheroid│
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>├────────────────────────────┼────────────────────────────┼──────────────────────────────┤
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>│  4. Targeted 1-to-1 Lease  │  5. Zero-WAL Outbox Prune  │  6. Hardware Acceleration    │
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>│  30-second server lock     │  Daily range partitions    │  AMD RX 7900 GRE VCN 4.0     │
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>│  Optimistic @Version DB    │  DROP TABLE retention jobs │  Mesa VAAPI HLS Transcoder   │
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>└────────────────────────────┴────────────────────────────┴──────────────────────────────┘
+</span></code></pre></div>
+<hr />
+<h2 id="2-architecture-decision-records-adrs">2. Architecture Decision Records (ADRs)</h2>
+<h3 id="adr-001-geodesic-ellipsoidal-calculations-geography4326-vs-web-mercator-geometry3857">ADR-001: Geodesic Ellipsoidal Calculations (<code>geography(4326)</code>) vs Web Mercator (<code>geometry(3857)</code>)</h3>
+<ul>
+<li><strong>Context:</strong> A food delivery system must calculate whether a customer's delivery location falls within a restaurant's service boundary polygon. Geospatial software often stores coordinates in planar Cartesian coordinates (<code>EPSG:3857</code>) for computational convenience.</li>
+<li><strong>Problem:</strong> Earth is an oblate spheroid, not a cylinder. The scale factor <span class="arithmatex">\(k\)</span> of Web Mercator grows as a function of latitude <span class="arithmatex">\(\phi\)</span>:
+  $<span class="arithmatex">\(k = \sec(\phi) = \frac{1}{\cos(\phi)}\)</span>$
+  At latitude <span class="arithmatex">\(37.7749^\circ\text{N}\)</span> (San Francisco), differential scale distortion is:
+  $<span class="arithmatex">\(\Delta_{\text{scale}} = \frac{1}{\cos(37.7749^\circ)} - 1 \approx 1.263 - 1 = +26.3\%\)</span>$
+  Area calculations distort quadratically:
+  $<span class="arithmatex">\(\Delta_{\text{area}} = k^2 - 1 = (1.263)^2 - 1 \approx +59.5\%\)</span>$
+  Storing boundaries in <code>EPSG:3857</code> causes severe false positives and false negatives on delivery perimeters.</li>
+<li><strong>Decision:</strong> All restaurant delivery boundaries and customer dropoff locations are strictly typed as <strong><code>geography(Polygon, 4326)</code></strong> and <strong><code>geography(Point, 4326)</code></strong>.</li>
+<li><strong>Mathematical Invariant:</strong> Spatial containment is evaluated using PostGIS native <code>ST_Covers(geog1, geog2)</code> directly on the WGS 84 ellipsoid (<span class="arithmatex">\(a = 6,378,137.0\text{ m}\)</span>, <span class="arithmatex">\(f = 1/298.257223563\)</span>). Unlike <code>ST_Contains</code> (which excludes points lying directly on the perimeter boundary <span class="arithmatex">\(\partial P\)</span>), <code>ST_Covers</code> satisfies the closed topological property:
+  $<span class="arithmatex">\(\forall p \in \partial P \implies \text{ST\_Covers}(P, p) = \text{TRUE}\)</span>$</li>
+<li><strong>Consequence:</strong> Sub-millimeter spatial accuracy with zero projection coordinate distortion at query time.</li>
+</ul>
+<hr />
+<h3 id="adr-002-two-stage-spatial-resolution-uber-h3-res-8-coarse-postgis-geodesic-fine">ADR-002: Two-Stage Spatial Resolution (Uber H3 Res 8 Coarse + PostGIS Geodesic Fine)</h3>
+<ul>
+<li><strong>Context:</strong> Evaluating PostGIS geodesic point-in-polygon calculations across thousands of restaurant delivery zones on every catalog request or video feed scroll induces high CPU utilization on PostgreSQL.</li>
+<li><strong>Decision:</strong> We implement a <strong>Two-Stage Spatial Indexing Pipeline</strong>:</li>
+<li><strong>Stage 1: Coarse Discrete Global Grid (Uber H3 Resolution 8):</strong><ul>
+<li>Hexagonal global tessellation where customer coordinates and restaurant centroids map to 64-bit integer H3 indices in <span class="arithmatex">\(O(1)\)</span> memory time.</li>
+<li>At Resolution 8, average hexagon area is <strong><span class="arithmatex">\(0.737\text{ km}^2\)</span></strong> with an edge length of <strong><span class="arithmatex">\(\approx 461.4\text{ meters}\)</span></strong>.</li>
+<li>Fast spatial candidate lookup computes a 1-ring neighborhood:
+   $<span class="arithmatex">\(\text{Candidates} = \text{kRing}(H3_{\text{customer}}, k=1) \implies 7 \text{ discrete cells}\)</span>$</li>
+</ul>
+</li>
+<li><strong>Stage 2: Geodesic Ellipsoidal Containment (PostGIS <code>ST_Covers</code>):</strong><ul>
+<li>Candidate restaurants identified in Stage 1 undergo exact geodesic verification against the <code>geography(Polygon, 4326)</code> boundary:
+   <div class="language-sql highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">SELECT</span><span class="w"> </span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">restaurants</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="k">WHERE</span><span class="w"> </span><span class="n">h3_res8</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">:</span><span class="n">customer_h3</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">  </span><span class="k">AND</span><span class="w"> </span><span class="n">is_active</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">true</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">  </span><span class="k">AND</span><span class="w"> </span><span class="n">ST_Covers</span><span class="p">(</span><span class="n">delivery_zone</span><span class="p">,</span><span class="w"> </span><span class="p">:</span><span class="n">customer_dropoff_geog</span><span class="p">);</span>
+</span></code></pre></div></li>
+</ul>
+</li>
+<li><strong>Consequence:</strong> Spatial candidate retrieval drops from <span class="arithmatex">\(O(N)\)</span> polygon boundary scans to <span class="arithmatex">\(O(1)\)</span> B-Tree integer lookups followed by targeted geodesic checks on <span class="arithmatex">\(\le 5\)</span> candidate rows.</li>
+</ul>
+<hr />
+<h3 id="adr-003-deterministic-1-to-1-dispatch-lease-state-machine-vs-thundering-herd-broadcast">ADR-003: Deterministic 1-to-1 Dispatch Lease State Machine vs Thundering Herd Broadcast</h3>
+<ul>
+<li><strong>Context:</strong> Delivery platforms that broadcast incoming orders to all couriers in a radius suffer from:</li>
+<li><em>Thundering Herd Concurrency:</em> Dozens of drivers attempt to claim the same order concurrently, creating row-level database lock contention.</li>
+<li><em>Driver Frustration:</em> Couriers who click "Accept" 50ms late receive "Order already claimed" errors.</li>
+<li><em>Cellular Battery Drain:</em> High-frequency WebSocket broadcasts keep mobile cellular radios in continuous high-power transmission mode.</li>
+<li><strong>Decision:</strong> We implement an exclusive, targeted <strong>1-to-1 Dispatch Lease State Machine</strong>:</li>
+<li>The dispatch engine ranks nearby couriers using H3 spatial binning and Valhalla road-network travel times.</li>
+<li>The top candidate receives an exclusive <strong>30-second server-authoritative lease</strong>.</li>
+<li>During this 30-second window, no other courier can view or accept the order.</li>
+<li>Database claim atomicity is enforced via an optimistic conditional update:
+     <div class="language-sql highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">UPDATE</span><span class="w"> </span><span class="n">orders</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="k">SET</span><span class="w"> </span><span class="n">courier_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">:</span><span class="n">courierId</span><span class="p">,</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'DISPATCHED'</span><span class="p">,</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">    </span><span class="k">version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">version</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">    </span><span class="n">updated_at</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NOW</span><span class="p">()</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="k">WHERE</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">:</span><span class="n">orderId</span>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">  </span><span class="k">AND</span><span class="w"> </span><span class="n">courier_id</span><span class="w"> </span><span class="k">IS</span><span class="w"> </span><span class="k">NULL</span>
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">  </span><span class="k">AND</span><span class="w"> </span><span class="n">dispatch_lease_expires_at</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">NOW</span><span class="p">();</span>
+</span></code></pre></div></li>
+<li>If the 30-second lease expires without courier acceptance, a background scheduler revokes the lease and tenders the offer to candidate <span class="arithmatex">\(N+1\)</span>.</li>
+<li><strong>Consequence:</strong> Zero race conditions, zero dual-assignments, and deterministic state progression.</li>
+</ul>
+<hr />
+<h3 id="adr-004-zero-wal-transactional-outbox-pruning-via-daily-range-drop-table">ADR-004: Zero-WAL Transactional Outbox Pruning via Daily Range <code>DROP TABLE</code></h3>
+<ul>
+<li><strong>Context:</strong> In microservice architectures, updating business tables and publishing events to Apache Kafka must be atomic (Transactional Outbox pattern). Events are written to an <code>outbox_events</code> table within the same ACID transaction as the business entity.</li>
+<li><strong>The PostgreSQL Dead-Tuple WAL Problem:</strong></li>
+<li>High-volume order processing writes 25,000+ outbox events daily.</li>
+<li>Standard retention jobs run <code>DELETE FROM outbox_events WHERE created_at &lt; NOW() - INTERVAL '7 days'</code>.</li>
+<li>In PostgreSQL MVCC, <code>DELETE</code> does not free disk space; it marks tuples as dead, writes deletion records to the Write-Ahead Log (WAL), bloats table pages, and delays replication slot advances.</li>
+<li>Under heavy local load testing, autovacuum cannot keep up, causing replication slot bloat and disk saturation.</li>
+<li><strong>Decision:</strong> We implement <strong>Zero-WAL Outbox Partition Pruning</strong>:</li>
+<li>The <code>outbox_events</code> table is declaratively partitioned by daily range:
+     <div class="language-sql highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">outbox_events</span><span class="w"> </span><span class="p">(</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">    </span><span class="n">id</span><span class="w"> </span><span class="n">UUID</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="n">uuid_generate_v4</span><span class="p">(),</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="n">aggregate_type</span><span class="w"> </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">64</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">    </span><span class="n">aggregate_id</span><span class="w"> </span><span class="n">UUID</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">    </span><span class="n">event_type</span><span class="w"> </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">64</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">    </span><span class="n">payload</span><span class="w"> </span><span class="n">JSONB</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">    </span><span class="n">created_at</span><span class="w"> </span><span class="k">TIMESTAMP</span><span class="w"> </span><span class="k">WITH</span><span class="w"> </span><span class="k">TIME</span><span class="w"> </span><span class="k">ZONE</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="n">NOW</span><span class="p">(),</span>
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">    </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="w"> </span><span class="p">(</span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">created_at</span><span class="p">)</span>
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="p">)</span><span class="w"> </span><span class="n">PARTITION</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">RANGE</span><span class="w"> </span><span class="p">(</span><span class="n">created_at</span><span class="p">);</span>
+</span></code></pre></div></li>
+<li>Physical partitions are named deterministically: <code>outbox_events_yYYYYmMMdDD</code> (e.g. <code>outbox_events_y2026m10d21</code>).</li>
+<li>Upcoming partitions are automatically created 14 days in advance by a scheduled Spring task.</li>
+<li>A scheduled Spring daemon identifies partitions older than 7 days and executes <strong><code>DROP TABLE &lt;partition_name&gt;;</code></strong>.</li>
+<li><strong>Verification Proof:</strong> <code>DROP TABLE</code> issues an OS filesystem unlink on the partition's physical storage file (<code>relfilenode</code>). It eliminates page scanning, generates zero dead tuples (<code>n_dead_tup == 0</code>), and avoids WAL write amplification.</li>
+</ul>
+<hr />
+<h3 id="adr-005-single-host-port-ingress-8080-kubernetes-cni-encapsulation">ADR-005: Single Host Port Ingress (<code>8080</code>) &amp; Kubernetes CNI Encapsulation</h3>
+<ul>
+<li><strong>Context:</strong> The platform contains 15+ microservices, datastores, consoles, and streaming brokers. In local workstation development (k3s, Kind, Minikube), binding individual container ports to the host machine causes port collisions with developer tools, SSH daemons, or system web servers.</li>
+<li><strong>Decision:</strong> <strong>Exactly one single port (<code>8080</code>) is bound to the host workstation</strong>.</li>
+<li>A Kubernetes Ingress Controller (Ingress-Nginx) manages the host gateway.</li>
+<li>All internal services communicate strictly over the internal Kubernetes Container Network Interface (CNI) pod network via ClusterIP Services and CoreDNS (<code>&lt;service&gt;.&lt;namespace&gt;.svc.cluster.local</code>).</li>
+<li>Path-based routing, CORS enforcement, and WebSocket protocol upgrading occur at this gateway.</li>
+<li><strong>Consequence:</strong> Complete workstation isolation, zero port collisions, and identical networking semantics between local testing and production Kubernetes clusters.</li>
+</ul>
+<hr />
+<h3 id="adr-006-hardware-gpu-passthrough-with-internal-concurrency-scaling-amd-rx-7900-gre">ADR-006: Hardware GPU Passthrough with Internal Concurrency Scaling (AMD RX 7900 GRE)</h3>
+<ul>
+<li><strong>Context:</strong> Short-form video reels uploaded by restaurant merchants must be transcoded into multi-bitrate HLS streams (1080p, 720p, 480p). Transcoding on CPU cores exhausts workstation CPU budgets. The host workstation contains an AMD Radeon RX 7900 GRE (RDNA 3 / Navi 31 XL) with Dual VCN 4.0 hardware video engines.</li>
+<li><strong>Constraint:</strong> Kubernetes Device Plugins allocate GPU devices as indivisible whole units (<code>amd.com/gpu: 1</code>). Setting <code>replicas: 2</code> causes the second pod to hang in <code>Pending</code> state.</li>
+<li><strong>Decision:</strong></li>
+<li>The worker Deployment runs with <strong><code>replicas: 1</code></strong>.</li>
+<li>Mounts <code>/dev/dri/card0</code> and <code>/dev/dri/renderD128</code> with GIDs for <code>video</code> (44) and <code>render</code> (107).</li>
+<li>Internal concurrency is scaled via RabbitMQ <code>prefetch_count: 4</code>.</li>
+<li>Up to 4 hardware VAAPI FFmpeg encoding pipelines run simultaneously across the Dual VCN 4.0 engines. Excess encoding jobs queue safely in RabbitMQ without dropping frames or overloading silicon.</li>
+</ul>
+<hr />
+<h2 id="3-omg-model-driven-architecture-mda-realization">3. OMG Model-Driven Architecture (MDA) Realization</h2>
+<p>The Object Management Group (OMG) Model-Driven Architecture (MDA®) standard organizes system specifications into three distinct abstraction viewpoints:
+1. <strong>Computation-Independent Model (CIM):</strong> The business domain, workflows, and rules, completely free of software concepts.
+2. <strong>Platform-Independent Model (PIM):</strong> Formal software structure, Domain-Driven Design (DDD) entities, and state machines, free of target operating systems, programming languages, or database engines.
+3. <strong>Platform-Specific Model (PSM):</strong> Concrete technical implementations bound to Java 21, Spring Boot 3, PostgreSQL 16 PostGIS, and Kubernetes CNI.</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>┌───────────────────────────────────────────────────────────────────────────────┐
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>│                     CIM: Computation-Independent Model                        │
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>│            Domain Actors, Business Capabilities &amp; Commercial Workflows        │
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>└──────────────────────────────────────┬────────────────────────────────────────┘
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>                                       │  (Transformation)
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>                                       ▼
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>┌───────────────────────────────────────────────────────────────────────────────┐
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>│                     PIM: Platform-Independent Model                           │
+</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>│        UML Class Realization, Method Signatures &amp; State Machine FSM           │
+</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>└──────────────────────────────────────┬────────────────────────────────────────┘
+</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>                                       │  (Platform Mapping)
+</span><span id="__span-4-12"><a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>                                       ▼
+</span><span id="__span-4-13"><a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a>┌───────────────────────────────────────────────────────────────────────────────┐
+</span><span id="__span-4-14"><a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a>│                     PSM: Platform-Specific Model                              │
+</span><span id="__span-4-15"><a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a>│       PostGIS Geodesic Schema, Range Partitioning, CNI Pod Topologies         │
+</span><span id="__span-4-16"><a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a>└───────────────────────────────────────────────────────────────────────────────┘
+</span></code></pre></div>
+<hr />
+<h3 id="31-computation-independent-model-cim">3.1 Computation-Independent Model (CIM)</h3>
+<h4 id="a-bpmn-20-business-process-swimlane-choreography">A. BPMN 2.0 Business Process Swimlane Choreography</h4>
+<p>The CIM represents the commercial lifecycle across five domain participants. Technical protocols, database queries, and network packets are completely hidden:</p>
+<pre class="mermaid"><code>%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#1e293b', 'edgeColor': '#64748b', 'textColor': '#f8fafc', 'primaryTextColor': '#f8fafc'}}}%%
+flowchart TB
+    subgraph Swimlane_Customer ["👤 Customer (Consumer)"]
+        C1["Discover Nearby Dishes&lt;br/&gt;via Location-Gated Reels"] --&gt; C2["Select Dish &amp; Enter&lt;br/&gt;Building, Floor &amp; Room Details"]
+        C2 --&gt; C3["Authorize Checkout&lt;br/&gt;&amp; Escrow Reservation"]
+        C4["Receive 6-Digit&lt;br/&gt;Verification PIN"] --&gt; C5["Track Courier Live&lt;br/&gt;on Street Map"]
+        C5 --&gt; C6["Handshake Delivery:&lt;br/&gt;Provide PIN to Courier"]
+    end
+
+    subgraph Swimlane_Merchant ["🏪 Restaurant Merchant (Kitchen)"]
+        M1["Publish Video Reel&lt;br/&gt;&amp; Menu Catalog"]
+        M2["Review Incoming Order&lt;br/&gt;&amp; Prep Time Estimate"] --&gt; M3["Accept &amp; Begin Cooking&lt;br/&gt;(Set Status: PREPARING)"]
+        M3 --&gt; M4["Package Food in Bag&lt;br/&gt;Alert Ready for Pickup"]
+    end
+
+    subgraph Swimlane_Escrow ["💳 Sovereign Escrow Ledger"]
+        E1["Reserve Balance&lt;br/&gt;(Create Journal HOLD)"]
+        E2["Release Funds to Merchant&lt;br/&gt;(CAPTURE on Handshake)"]
+        E3["Refund Escrowed Funds&lt;br/&gt;(REFUND on Rejection/Timeout)"]
+    end
+
+    subgraph Swimlane_Dispatch ["⚡ Deterministic Dispatch Engine"]
+        D1["Spatial Candidate Retrieval&lt;br/&gt;(H3 Res 8 + PostGIS Covers)"]
+        D2["Rank Courier Candidates&lt;br/&gt;via Road Travel Time"]
+        D3["Issue Exclusive 30s Lease&lt;br/&gt;to Top Candidate"]
+        D4{"Courier Accepted&lt;br/&gt;within 30s?"}
+    end
+
+    subgraph Swimlane_Courier ["🛵 Delivery Courier / Digital Twin"]
+        CR1["Receive 30s Exclusive&lt;br/&gt;Offer Notification"]
+        CR2["Accept Dispatch Offer"]
+        CR3["Transit to Kitchen&lt;br/&gt;&amp; Pickup Order"]
+        CR4["Transit to Doorstep&lt;br/&gt;&amp; Stream Kinematic GPS"]
+        CR5["Enter Customer PIN&lt;br/&gt;to Complete Handshake"]
+    end
+
+    M1 -.-&gt;|Indexed by Location| C1
+    C3 --&gt;|1. Request Escrow Hold| E1
+    E1 --&gt;|2. Escrow Hold Confirmed| M2
+    M2 --&gt;|Merchant Rejects / Timeout| E3
+    E3 --&gt;|Balance Restored| C2
+    M4 --&gt;|3. Ready for Delivery| D1
+    D1 --&gt; D2 --&gt; D3 --&gt; CR1
+    CR1 --&gt; CR2 --&gt; D4
+    D4 -- No / Timeout --&gt;|Revoke &amp; Advance| D3
+    D4 -- Yes --&gt; CR3
+    CR3 --&gt; CR4 --&gt; C5
+    C3 --&gt; C4
+    CR4 --&gt; CR5
+    C6 -.-&gt;|Share Secret PIN| CR5
+    CR5 --&gt;|4. Valid PIN Verified| E2
+
+    classDef customerNode fill:#0f172a,stroke:#38bdf8,stroke-width:2px,color:#f8fafc;
+    classDef merchantNode fill:#0f172a,stroke:#f59e0b,stroke-width:2px,color:#f8fafc;
+    classDef escrowNode fill:#0f172a,stroke:#10b981,stroke-width:2px,color:#f8fafc;
+    classDef dispatchNode fill:#0f172a,stroke:#8b5cf6,stroke-width:2px,color:#f8fafc;
+    classDef courierNode fill:#0f172a,stroke:#ec4899,stroke-width:2px,color:#f8fafc;
+
+    class C1,C2,C3,C4,C5,C6 customerNode;
+    class M1,M2,M3,M4 merchantNode;
+    class E1,E2,E3 escrowNode;
+    class D1,D2,D3,D4 dispatchNode;
+    class CR1,CR2,CR3,CR4,CR5 courierNode;</code></pre>
+<h4 id="b-iso-19107-geographic-information-domain-conceptual-model">B. ISO 19107 Geographic Information Domain Conceptual Model</h4>
+<p>The domain model follows ISO 19107 geometric schema primitives:
+- <strong><code>GeoPoint</code> (DirectPosition):</strong> Coordinates defined as latitude (<span class="arithmatex">\(\phi\)</span>) and longitude (<span class="arithmatex">\(\lambda\)</span>) on the WGS 84 Reference Ellipsoid.
+- <strong><code>DeliveryBoundary</code> (GM_Polygon):</strong> Surface boundary bounded by an exterior linear ring <span class="arithmatex">\(\partial P\)</span>.
+- <strong>Boundary Containment Rule (Invariant BR-GEO-01):</strong> An order <span class="arithmatex">\(O\)</span> for restaurant <span class="arithmatex">\(R\)</span> with dropoff point <span class="arithmatex">\(p\)</span> is legally dispatchable if and only if <span class="arithmatex">\(p\)</span> lies within or on the closure of <span class="arithmatex">\(R\)</span>'s delivery zone:
+  $<span class="arithmatex">\(p \in \overline{\text{zone}(R)} \iff \text{ST\_Covers}(\text{zone}(R), p) = \text{TRUE}\)</span>$</p>
+<h4 id="c-ubiquitous-domain-vocabulary-semantic-invariants">C. Ubiquitous Domain Vocabulary &amp; Semantic Invariants</h4>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Domain Concept</th>
+<th style="text-align: left;">Definition &amp; Semantic Role</th>
+<th style="text-align: left;">Formal Invariant Contract</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Restaurant Boundary</strong></td>
+<td style="text-align: left;">Closed geodesic polygon on WGS 84 within which the merchant guarantees food freshness.</td>
+<td style="text-align: left;"><strong>BR-GEO-01:</strong> Boundary must be simple, planar-valid, and oriented counter-clockwise without self-intersections.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Dropoff Coordinates</strong></td>
+<td style="text-align: left;">Latitude, longitude, plus human vertical access indicators (building name, floor, room number, gate code).</td>
+<td style="text-align: left;"><strong>BR-ORD-01:</strong> Dropoff point must be covered by the restaurant's active delivery boundary at checkout time.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Dispatch Lease</strong></td>
+<td style="text-align: left;">A 30-second exclusive reservation issued to exactly one courier candidate at a time.</td>
+<td style="text-align: left;"><strong>BR-DSP-01:</strong> <span class="arithmatex">\(\forall \text{Order } O, \sum \text{ActiveLeases}(O) \le 1\)</span>. No concurrent offers permitted.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Verification PIN</strong></td>
+<td style="text-align: left;">A cryptographically secure 6-digit random code generated at checkout and known only to the customer.</td>
+<td style="text-align: left;"><strong>BR-SEC-01:</strong> PIN handshake required at doorstep. Courier cannot mark <code>DELIVERED</code> without customer PIN.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Escrow Account</strong></td>
+<td style="text-align: left;">An internal double-entry ledger account holding customer funds during order fulfillment.</td>
+<td style="text-align: left;"><strong>BR-FIN-01:</strong> <span class="arithmatex">\(\sum \text{Debits} - \sum \text{Credits} = 0\)</span>. Zero negative balances permitted.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="32-platform-independent-model-pim">3.2 Platform-Independent Model (PIM)</h3>
+<h4 id="a-domain-driven-design-ddd-bounded-context-architecture">A. Domain-Driven Design (DDD) Bounded Context Architecture</h4>
+<p>The system is decomposed into five autonomous Bounded Contexts with strict interface boundaries:</p>
+<pre class="mermaid"><code>%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#1e293b', 'edgeColor': '#64748b', 'textColor': '#f8fafc', 'primaryTextColor': '#f8fafc'}}}%%
+classDiagram
+    direction TB
+
+    class Customer {
+        +UUID id
+        +String phone
+        +GeoPoint homeLocation
+        +String building
+        +String floor
+        +String room
+        +placeOrder(cart: Cart, dropoff: DropoffDetails) Order
+    }
+
+    class Restaurant {
+        +UUID id
+        +String name
+        +String phone
+        +GeoPoint location
+        +Polygon deliveryZone
+        +Long h3Res8
+        +Boolean isActive
+        +Boolean isAcceptingOrders
+        +Int averagePrepTimeMinutes
+        +Decimal rating
+        +isLocationCovered(dropoff: GeoPoint) Boolean
+        +calculateDistance(dropoff: GeoPoint) Double
+        +acceptOrder(orderId: UUID)
+        +rejectOrder(orderId: UUID, reason: String)
+    }
+
+    class Dish {
+        +UUID id
+        +UUID restaurantId
+        +String name
+        +String description
+        +Decimal price
+        +String cuisineType
+        +Boolean isAvailable
+        +setAvailability(available: Boolean)
+    }
+
+    class VideoReel {
+        +UUID id
+        +UUID restaurantId
+        +UUID dishId
+        +String masterM3u8Url
+        +String thumbnailUrl
+        +Long h3Res8
+        +Int durationSec
+    }
+
+    class Order {
+        +UUID id
+        +UUID userId
+        +UUID restaurantId
+        +UUID courierId
+        +OrderStatus status
+        +Decimal subtotal
+        +Decimal deliveryFee
+        +Decimal tax
+        +Decimal totalAmount
+        +GeoPoint dropoffLocation
+        +String dropoffBuilding
+        +String dropoffFloor
+        +String dropoffRoom
+        +String dropoffGateCode
+        +String dropoffNotes
+        +String verificationPin
+        +Instant dispatchLeaseExpiresAt
+        +UUID idempotencyKey
+        +Long version
+        +Instant createdAt
+        +Instant updatedAt
+        +claimDispatch(courierId: UUID, now: Instant) Boolean
+        +completeDelivery(pin: String) Boolean
+    }
+
+    class OrderItem {
+        +UUID id
+        +UUID orderId
+        +UUID dishId
+        +String dishName
+        +Decimal unitPrice
+        +Int quantity
+        +String customizationNotes
+    }
+
+    class Courier {
+        +UUID id
+        +String phone
+        +CourierStatus status
+        +GeoPoint currentLocation
+        +Long currentH3Res9
+        +Boolean isOnline
+        +Long version
+        +updateLocation(newLoc: GeoPoint, velocityKmH: Double)
+    }
+
+    class LedgerAccount {
+        +UUID id
+        +UUID userId
+        +Decimal balance
+        +Decimal heldBalance
+        +String currency
+        +Long version
+        +holdFunds(amount: Decimal) Boolean
+        +captureFunds(amount: Decimal) Boolean
+        +refundFunds(amount: Decimal) Boolean
+    }
+
+    class JournalEntry {
+        +UUID id
+        +UUID orderId
+        +UUID sourceAccountId
+        +UUID destinationAccountId
+        +Decimal amount
+        +EntryType entryType
+        +EntryStatus status
+        +UUID idempotencyKey
+        +Instant createdAt
+    }
+
+    Customer "1" --&gt; "0..*" Order : places
+    Restaurant "1" --&gt; "1..*" Dish : catalogs
+    Restaurant "1" --&gt; "0..*" VideoReel : publishes
+    Dish "1" --&gt; "0..1" VideoReel : featured_in
+    Restaurant "1" --&gt; "0..*" Order : fulfills
+    Order "1" *-- "1..*" OrderItem : contains
+    Order "1" --&gt; "0..1" Courier : assigned_to
+    Customer "1" --&gt; "1" LedgerAccount : owns
+    LedgerAccount "1" --&gt; "0..*" JournalEntry : logs</code></pre>
+<h4 id="b-deterministic-order-lifecycle-state-machine-statechart">B. Deterministic Order Lifecycle State Machine (Statechart)</h4>
+<p>The state machine enforces unidirectional, deterministic transitions without race conditions:</p>
+<pre class="mermaid"><code>%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#1e293b', 'edgeColor': '#64748b', 'textColor': '#f8fafc', 'primaryTextColor': '#f8fafc'}}}%%
+stateDiagram-v2
+    direction TB
+
+    [*] --&gt; PLACED : SubmitCheckout [ST_Covers == TRUE &amp;&amp; Balance &gt;= Total]
+
+    PLACED --&gt; PAYMENT_PENDING : AuthorizePayment [Hold Funds on Ledger]
+
+    PAYMENT_PENDING --&gt; PAYMENT_CONFIRMED : PaymentHoldSuccess [Journal HOLD Created]
+    PAYMENT_PENDING --&gt; CANCELLED : PaymentHoldFail [Insufficient Funds]
+    PAYMENT_PENDING --&gt; CANCELLED : SagaTimeout [Age &gt; 90 seconds]
+
+    PAYMENT_CONFIRMED --&gt; ACCEPTED : MerchantAccept [Kitchen Capacity OK]
+    PAYMENT_CONFIRMED --&gt; CANCELLED : MerchantReject [Out of Stock / Closed]
+
+    ACCEPTED --&gt; PREPARING : StartCooking [Kitchen Queue Updated]
+    PREPARING --&gt; READY_FOR_PICKUP : PackagingComplete [Tamper-Evident Bag Sealed]
+
+    state "Targeted 1-to-1 Dispatch Engine" as DispatchFSM {
+        [*] --&gt; CandidateSelection : Query H3 1-Ring &amp; Rank ETAs
+        CandidateSelection --&gt; OfferLeased : Issue 30s Server Lease to Driver A
+        OfferLeased --&gt; CandidateSelection : Lease Timeout (30s) / Rejection
+        OfferLeased --&gt; DriverAssigned : Driver Accepts [Lease Still Active]
+    }
+
+    PREPARING --&gt; DispatchFSM : Background Dispatch Trigger
+    READY_FOR_PICKUP --&gt; DISPATCHED : Courier Arrives at Restaurant
+    DriverAssigned --&gt; DISPATCHED : Package Handed Over
+
+    DISPATCHED --&gt; OUT_FOR_DELIVERY : Courier Starts Navigation
+    OUT_FOR_DELIVERY --&gt; DELIVERED : Doorstep PIN Match [Submitted == Stored PIN]
+
+    DELIVERED --&gt; SETTLED : EscrowSettled [HOLD Captured to Merchant]
+    CANCELLED --&gt; REFUNDED : EscrowRefunded [HOLD Released to Customer]
+
+    SETTLED --&gt; [*]
+    REFUNDED --&gt; [*]</code></pre>
+<h4 id="c-formal-state-transition-matrix-with-invariants-rollbacks">C. Formal State Transition Matrix with Invariants &amp; Rollbacks</h4>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Current State</th>
+<th style="text-align: left;">Event / Trigger</th>
+<th style="text-align: left;">Guard Condition</th>
+<th style="text-align: left;">Target State</th>
+<th style="text-align: left;">System Action &amp; Side-Effects</th>
+<th style="text-align: left;">Rollback / Compensation Vector</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>[*] (None)</code></td>
+<td style="text-align: left;"><code>SubmitCheckout</code></td>
+<td style="text-align: left;"><code>ST_Covers == true &amp;&amp; totalAmount &gt; 0</code></td>
+<td style="text-align: left;"><code>PLACED</code></td>
+<td style="text-align: left;">Atomically writes <code>orders</code> row + <code>outbox_events</code> (<code>OrderPlaced</code>).</td>
+<td style="text-align: left;">Transaction rolls back; no order created.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>PLACED</code></td>
+<td style="text-align: left;"><code>AuthorizePayment</code></td>
+<td style="text-align: left;">User available balance <span class="arithmatex">\(\ge\)</span> <code>totalAmount</code></td>
+<td style="text-align: left;"><code>PAYMENT_PENDING</code></td>
+<td style="text-align: left;">Creates journal HOLD on user ledger account.</td>
+<td style="text-align: left;">Aborts payment; transitions to <code>CANCELLED</code>.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>PAYMENT_PENDING</code></td>
+<td style="text-align: left;"><code>PaymentHoldSuccess</code></td>
+<td style="text-align: left;">Ledger returns HTTP 200 OK</td>
+<td style="text-align: left;"><code>PAYMENT_CONFIRMED</code></td>
+<td style="text-align: left;">Emits <code>OrderPaid</code> event; alerts restaurant kitchen display.</td>
+<td style="text-align: left;">Releases reservation; transitions to <code>CANCELLED</code>.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>PAYMENT_PENDING</code></td>
+<td style="text-align: left;"><code>PaymentHoldFail</code></td>
+<td style="text-align: left;">Insufficient funds or account locked</td>
+<td style="text-align: left;"><code>CANCELLED</code></td>
+<td style="text-align: left;">Emits <code>OrderCancelled</code>; frees inventory locks.</td>
+<td style="text-align: left;">N/A (Terminal failure).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>PAYMENT_PENDING</code></td>
+<td style="text-align: left;"><code>SagaTimeout</code></td>
+<td style="text-align: left;"><code>NOW() - created_at &gt; 90s</code></td>
+<td style="text-align: left;"><code>CANCELLED</code></td>
+<td style="text-align: left;"><code>SagaTimeoutDaemon</code> sweeps order and frees locks.</td>
+<td style="text-align: left;">Compensates by releasing ledger reservations.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>PAYMENT_CONFIRMED</code></td>
+<td style="text-align: left;"><code>MerchantAccept</code></td>
+<td style="text-align: left;">Restaurant is open and dish in stock</td>
+<td style="text-align: left;"><code>ACCEPTED</code></td>
+<td style="text-align: left;">Sets cooking timer; begins kitchen queueing.</td>
+<td style="text-align: left;">Merchant rejection transitions to <code>CANCELLED</code>.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>PAYMENT_CONFIRMED</code></td>
+<td style="text-align: left;"><code>MerchantReject</code></td>
+<td style="text-align: left;">Kitchen capacity reached or 86-ed</td>
+<td style="text-align: left;"><code>CANCELLED</code></td>
+<td style="text-align: left;">Emits <code>OrderRejected</code>; triggers compensating REFUND.</td>
+<td style="text-align: left;">Compensating transaction: ledger releases HOLD.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>ACCEPTED</code></td>
+<td style="text-align: left;"><code>StartCooking</code></td>
+<td style="text-align: left;">Food tickets queued in kitchen</td>
+<td style="text-align: left;"><code>PREPARING</code></td>
+<td style="text-align: left;">Triggers background courier candidate ranking.</td>
+<td style="text-align: left;">Reversal requires manager override.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>PREPARING</code></td>
+<td style="text-align: left;"><code>PackagingComplete</code></td>
+<td style="text-align: left;">Bag sealed and tagged with order ID</td>
+<td style="text-align: left;"><code>READY_FOR_PICKUP</code></td>
+<td style="text-align: left;">Issues 30s exclusive lease to optimal courier.</td>
+<td style="text-align: left;">Candidate timeout rotates to next candidate.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>READY_FOR_PICKUP</code></td>
+<td style="text-align: left;"><code>CourierClaimLease</code></td>
+<td style="text-align: left;"><code>lease_expires_at &gt; NOW()</code></td>
+<td style="text-align: left;"><code>DISPATCHED</code></td>
+<td style="text-align: left;">Conditional SQL update claims row; emits <code>CourierAssigned</code>.</td>
+<td style="text-align: left;">If lease expired, update matches 0 rows; fails safely.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>READY_FOR_PICKUP</code></td>
+<td style="text-align: left;"><code>LeaseTimeout</code></td>
+<td style="text-align: left;">Courier fails to claim within 30s</td>
+<td style="text-align: left;"><code>READY_FOR_PICKUP</code></td>
+<td style="text-align: left;">Increments candidate index; offers lease to driver <span class="arithmatex">\(N+1\)</span>.</td>
+<td style="text-align: left;">Self-healing; repeats until claimed or cancelled.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>DISPATCHED</code></td>
+<td style="text-align: left;"><code>PickupPackage</code></td>
+<td style="text-align: left;">Courier scans restaurant QR code</td>
+<td style="text-align: left;"><code>OUT_FOR_DELIVERY</code></td>
+<td style="text-align: left;">Activates live kinematic GPS breadcrumb tracking.</td>
+<td style="text-align: left;">Re-assign courier if driver becomes unreachable.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>OUT_FOR_DELIVERY</code></td>
+<td style="text-align: left;"><code>VerifyDoorstepPin</code></td>
+<td style="text-align: left;"><code>submitted_pin == verification_pin</code></td>
+<td style="text-align: left;"><code>DELIVERED</code></td>
+<td style="text-align: left;">Captures escrow HOLD; credits merchant balance.</td>
+<td style="text-align: left;">Invalid PIN rejects; requires manual resolution.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>DELIVERED</code></td>
+<td style="text-align: left;"><code>EscrowSettled</code></td>
+<td style="text-align: left;">Ledger capture successful</td>
+<td style="text-align: left;"><code>SETTLED</code></td>
+<td style="text-align: left;">Order closed permanently.</td>
+<td style="text-align: left;">Audit log flag if ledger fails capture.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>CANCELLED</code></td>
+<td style="text-align: left;"><code>RefundProcessed</code></td>
+<td style="text-align: left;">Ledger refund successful</td>
+<td style="text-align: left;"><code>REFUNDED</code></td>
+<td style="text-align: left;">Order closed permanently.</td>
+<td style="text-align: left;">Retry ledger refund daemon if network fails.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="33-platform-specific-model-psm">3.3 Platform-Specific Model (PSM)</h3>
+<p>The Platform-Specific Model binds the platform-independent designs to physical schemas on <strong>PostgreSQL 16 with PostGIS 3.4</strong>, Java 21 / Spring Boot 3 entities, and Kubernetes CNI network topologies.</p>
+<h4 id="a-physical-relational-geospatial-schema-postgresql-16-postgis-34">A. Physical Relational &amp; Geospatial Schema (PostgreSQL 16 / PostGIS 3.4)</h4>
+<pre class="mermaid"><code>%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#1e293b', 'edgeColor': '#64748b', 'textColor': '#f8fafc', 'primaryTextColor': '#f8fafc'}}}%%
+erDiagram
+    RESTAURANTS ||--o{ DISHES : catalogs
+    RESTAURANTS ||--o{ VIDEO_REELS : publishes
+    RESTAURANTS ||--o{ ORDERS : fulfills
+    ORDERS ||--|{ ORDER_ITEMS : contains
+    ORDERS ||--|| OUTBOX_EVENTS : emits
+    USERS ||--o{ ORDERS : places
+    USERS ||--|| LEDGER_ACCOUNTS : owns
+    LEDGER_ACCOUNTS ||--o{ JOURNAL_ENTRIES : logs
+
+    RESTAURANTS {
+        uuid id PK "DEFAULT uuid_generate_v4()"
+        varchar name "VARCHAR(255) NOT NULL"
+        text description "TEXT"
+        varchar phone "VARCHAR(32)"
+        geography location "GEOGRAPHY(Point, 4326) NOT NULL"
+        geography delivery_zone "GEOGRAPHY(Polygon, 4326) NOT NULL"
+        bigint h3_res8 "BIGINT NOT NULL"
+        varchar city_id "VARCHAR(64) NOT NULL DEFAULT 'default-city'"
+        boolean is_active "BOOLEAN NOT NULL DEFAULT true"
+        boolean is_accepting_orders "BOOLEAN NOT NULL DEFAULT true"
+        int average_prep_time_minutes "INT NOT NULL DEFAULT 20"
+        numeric rating "NUMERIC(2, 1) NOT NULL DEFAULT 5.0"
+        timestamptz created_at "TIMESTAMPTZ NOT NULL DEFAULT NOW()"
+        timestamptz updated_at "TIMESTAMPTZ NOT NULL DEFAULT NOW()"
+    }
+
+    DISHES {
+        uuid id PK "DEFAULT uuid_generate_v4()"
+        uuid restaurant_id FK "REFERENCES restaurants(id) ON DELETE CASCADE"
+        varchar name "VARCHAR(255) NOT NULL"
+        text description "TEXT"
+        numeric price "NUMERIC(10, 2) NOT NULL CHECK (price &gt;= 0)"
+        varchar cuisine_type "VARCHAR(64) NOT NULL DEFAULT 'GENERAL'"
+        boolean is_available "BOOLEAN NOT NULL DEFAULT true"
+        timestamptz created_at "TIMESTAMPTZ NOT NULL DEFAULT NOW()"
+        timestamptz updated_at "TIMESTAMPTZ NOT NULL DEFAULT NOW()"
+    }
+
+    VIDEO_REELS {
+        uuid id PK "DEFAULT uuid_generate_v4()"
+        uuid restaurant_id FK "REFERENCES restaurants(id) ON DELETE CASCADE"
+        uuid dish_id FK "REFERENCES dishes(id) ON DELETE SET NULL"
+        varchar master_m3u8_url "VARCHAR(512) NOT NULL"
+        varchar thumbnail_url "VARCHAR(512)"
+        bigint h3_res8 "BIGINT NOT NULL"
+        int duration_sec "INT NOT NULL CHECK (duration_sec &gt; 0)"
+        timestamptz created_at "TIMESTAMPTZ NOT NULL DEFAULT NOW()"
+    }
+
+    ORDERS {
+        uuid id PK "DEFAULT uuid_generate_v4()"
+        uuid user_id "UUID NOT NULL"
+        uuid restaurant_id "UUID NOT NULL"
+        uuid courier_id "UUID"
+        varchar status "VARCHAR(32) NOT NULL DEFAULT 'PLACED'"
+        numeric subtotal "NUMERIC(10, 2) NOT NULL CHECK (subtotal &gt;= 0)"
+        numeric delivery_fee "NUMERIC(10, 2) NOT NULL DEFAULT 0.00"
+        numeric tax "NUMERIC(10, 2) NOT NULL DEFAULT 0.00"
+        numeric total_amount "NUMERIC(10, 2) NOT NULL CHECK (total_amount &gt;= 0)"
+        geography dropoff_location "GEOGRAPHY(Point, 4326) NOT NULL"
+        varchar dropoff_building "VARCHAR(128) NOT NULL"
+        varchar dropoff_floor "VARCHAR(32) NOT NULL"
+        varchar dropoff_room "VARCHAR(32) NOT NULL"
+        varchar dropoff_gate_code "VARCHAR(32)"
+        text dropoff_notes "TEXT"
+        varchar verification_pin "VARCHAR(6) NOT NULL"
+        timestamptz dispatch_lease_expires_at "TIMESTAMPTZ"
+        uuid idempotency_key "UUID NOT NULL UNIQUE"
+        bigint version "BIGINT NOT NULL DEFAULT 0"
+        timestamptz created_at "TIMESTAMPTZ NOT NULL DEFAULT NOW()"
+        timestamptz updated_at "TIMESTAMPTZ NOT NULL DEFAULT NOW()"
+    }
+
+    ORDER_ITEMS {
+        uuid id PK "DEFAULT uuid_generate_v4()"
+        uuid order_id FK "REFERENCES orders(id) ON DELETE CASCADE"
+        uuid dish_id "UUID NOT NULL"
+        varchar dish_name "VARCHAR(255) NOT NULL"
+        numeric unit_price "NUMERIC(10, 2) NOT NULL"
+        int quantity "INT NOT NULL CHECK (quantity &gt; 0)"
+        text customization_notes "TEXT"
+    }
+
+    OUTBOX_EVENTS {
+        uuid id PK "DEFAULT uuid_generate_v4()"
+        varchar aggregate_type "VARCHAR(64) NOT NULL"
+        uuid aggregate_id "UUID NOT NULL"
+        varchar event_type "VARCHAR(64) NOT NULL"
+        jsonb payload "JSONB NOT NULL"
+        timestamptz created_at PK "TIMESTAMPTZ NOT NULL DEFAULT NOW()"
+    }
+
+    LEDGER_ACCOUNTS {
+        uuid id PK "DEFAULT uuid_generate_v4()"
+        uuid user_id "UUID NOT NULL UNIQUE"
+        numeric balance "NUMERIC(12, 2) NOT NULL DEFAULT 0.00 CHECK (balance &gt;= 0)"
+        numeric held_balance "NUMERIC(12, 2) NOT NULL DEFAULT 0.00 CHECK (held_balance &gt;= 0)"
+        varchar currency "VARCHAR(3) NOT NULL DEFAULT 'USD'"
+        bigint version "BIGINT NOT NULL DEFAULT 0"
+        timestamptz created_at "TIMESTAMPTZ NOT NULL DEFAULT NOW()"
+        timestamptz updated_at "TIMESTAMPTZ NOT NULL DEFAULT NOW()"
+    }
+
+    JOURNAL_ENTRIES {
+        uuid id PK "DEFAULT uuid_generate_v4()"
+        uuid order_id "UUID NOT NULL"
+        uuid source_account_id "UUID NOT NULL"
+        uuid destination_account_id "UUID NOT NULL"
+        numeric amount "NUMERIC(12, 2) NOT NULL CHECK (amount &gt; 0)"
+        varchar entry_type "VARCHAR(32) NOT NULL"
+        varchar status "VARCHAR(32) NOT NULL"
+        uuid idempotency_key "UUID NOT NULL UNIQUE"
+        timestamptz created_at "TIMESTAMPTZ NOT NULL DEFAULT NOW()"
+    }</code></pre>
+<h4 id="b-postgis-spatial-indexing-engine-mechanics">B. PostGIS Spatial Indexing Engine Mechanics</h4>
+<p>PostgreSQL executes geospatial containment queries using a two-stage filter:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>[ Incoming Query: ST_Covers(delivery_zone, :dropoff_point) ]
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>                        │
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>                        ▼
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>┌───────────────────────────────────────────────────────────────┐
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>│  STAGE 1: Lossy Index Bounding Box Pre-Filter (Operator '&amp;&amp;') │
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>│  Traverses GiST R-Tree index on disk. Rejects 99.5% of rows   │
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>│  whose 2D axis-aligned bounding box (AABB) does not overlap.  │
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>└───────────────────────────────┬───────────────────────────────┘
+</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>                                │ Candidate Set (Rows with BBox Overlap)
+</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>                                ▼
+</span><span id="__span-5-11"><a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>┌───────────────────────────────────────────────────────────────┐
+</span><span id="__span-5-12"><a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a>│  STAGE 2: Exact Spheroidal Geodesic Ray-Intersection Test     │
+</span><span id="__span-5-13"><a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a>│  Computes great-circle arc intersections on WGS 84 ellipsoid. │
+</span><span id="__span-5-14"><a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a>│  Guarantees zero planar scale distortion. Returns TRUE/FALSE. │
+</span><span id="__span-5-15"><a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a>└───────────────────────────────────────────────────────────────┘
+</span></code></pre></div>
+<h4 id="c-zero-wal-partition-unlinking-physical-mechanics">C. Zero-WAL Partition Unlinking Physical Mechanics</h4>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>Standard SQL: DELETE FROM outbox_events WHERE created_at &lt; NOW() - 7 days;
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>┌────────────────────────────────────────────────────────────────────────┐
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>│ ❌ Fills WAL buffers with thousands of tuple deletion records           │
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>│ ❌ Leaves tombstoned dead tuples in heap pages (n_dead_tup bloat)      │
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>│ ❌ Forces PostgreSQL autovacuum daemon into emergency vacuuming loops  │
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>│ ❌ Increases transaction ID wraparound risk under high write volumes   │
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>└────────────────────────────────────────────────────────────────────────┘
+</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>
+</span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>Engineered Solution: DROP TABLE outbox_events_y2026m10d14;
+</span><span id="__span-6-10"><a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>┌────────────────────────────────────────────────────────────────────────┐
+</span><span id="__span-6-11"><a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>│ ✅ Kernel unlinks physical storage file from filesystem (unlink)       │
+</span><span id="__span-6-12"><a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a>│ ✅ Removes partition catalog metadata from pg_class in O(1) time       │
+</span><span id="__span-6-13"><a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a>│ ✅ Generates zero dead tuples (n_dead_tup == 0 permanently)            │
+</span><span id="__span-6-14"><a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a>│ ✅ Zero MVCC page scanning overhead and zero WAL amplification         │
+</span><span id="__span-6-15"><a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a>└────────────────────────────────────────────────────────────────────────┘
+</span></code></pre></div>
+<hr />
+<h2 id="4-end-to-end-execution-trace-the-lifecycle-of-a-request">4. End-to-End Execution Trace: The Lifecycle of a Request</h2>
+<p>To understand how high-concurrency requests execute within the single-port architecture, consider the lifecycle of an <code>ST_Covers</code> restaurant search request:</p>
+<pre class="mermaid"><code>%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#1e293b', 'edgeColor': '#64748b', 'textColor': '#f8fafc', 'primaryTextColor': '#f8fafc'}}}%%
+sequenceDiagram
+    autonumber
+    actor Client as 📱 Mobile Client
+    participant Kernel as 🐧 Linux Kernel / iptables
+    participant Ingress as 🚪 Ingress-Nginx (Port 8080)
+    participant CoreDNS as 🌐 CoreDNS (kube-dns)
+    participant Catalog as 🍽️ catalog-service Pod
+    participant Loom as 🧵 Virtual Thread Scheduler
+    participant Hikari as ⚡ HikariCP Pool
+    participant PG as 🗄️ PostgreSQL 16 (PostGIS)
+    participant Disk as 💾 NVMe GiST Index Blocks
+
+    Client-&gt;&gt;Kernel: TCP SYN to Host Port 8080
+    Kernel-&gt;&gt;Ingress: Route packet to Ingress Controller container
+    Note over Ingress: Ingress-Nginx matches path prefix /api/v1/catalog/*
+    Ingress-&gt;&gt;CoreDNS: Resolve catalog-service.delivery.svc.cluster.local
+    CoreDNS--&gt;&gt;Ingress: Return ClusterIP 10.96.14.82:8080
+    Ingress-&gt;&gt;Catalog: Forward HTTP GET /api/v1/catalog/restaurants/covering?lat=37.77&amp;lon=-122.41
+    Catalog-&gt;&gt;Loom: Fork uncarrier Virtual Thread (Project Loom)
+    Loom-&gt;&gt;Hikari: Borrow pooled JDBC connection (Socket Channel)
+    Hikari-&gt;&gt;PG: Execute native ST_Covers query over TCP
+    PG-&gt;&gt;Disk: GiST R-Tree index scan (Stage 1 Bounding Box)
+    Disk--&gt;&gt;PG: Return candidate heap page offsets
+    Note over PG: Execute Stage 2 Spheroidal Geodesic evaluation
+    PG--&gt;&gt;Hikari: Return matching restaurant tuples
+    Hikari--&gt;&gt;Loom: Release connection back to HikariCP pool
+    Loom--&gt;&gt;Catalog: Serialize DTO to JSON
+    Catalog--&gt;&gt;Ingress: HTTP 200 OK (application/json)
+    Ingress--&gt;&gt;Client: HTTP 200 OK (JSON Payload)</code></pre>
+<hr />
+<h2 id="5-failure-mode-and-effects-analysis-fmea">5. Failure Mode and Effects Analysis (FMEA)</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Failure Scenario</th>
+<th style="text-align: left;">Immediate System Effect</th>
+<th style="text-align: left;">Automated Mitigation &amp; Recovery Mechanism</th>
+<th style="text-align: left;">Invariant Preserved</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Courier App Crashes during 30s Lease</strong></td>
+<td style="text-align: left;">Order status remains <code>READY_FOR_PICKUP</code> with active lease expiry timestamp.</td>
+<td style="text-align: left;"><code>DispatchLeaseEvictionDaemon</code> scans orders where <code>dispatch_lease_expires_at &lt; NOW()</code>. Revokes lease and offers to candidate <span class="arithmatex">\(N+1\)</span>.</td>
+<td style="text-align: left;"><strong>BR-DSP-01:</strong> No dual dispatch; order never remains stuck indefinitely.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Concurrent Courier Claims (Race Condition)</strong></td>
+<td style="text-align: left;">Two couriers submit acceptance requests within 5 milliseconds of each other.</td>
+<td style="text-align: left;">Atomic conditional update (<code>WHERE courier_id IS NULL AND dispatch_lease_expires_at &gt; NOW()</code>). Exactly one update returns rows affected = 1; second returns 0 and receives HTTP 409 Conflict.</td>
+<td style="text-align: left;"><strong>BR-DSP-01:</strong> Exactly one courier assigned. Zero dual-assignments.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>PostgreSQL Outbox Partition Drops Lag</strong></td>
+<td style="text-align: left;">High volume of events accumulates in older daily partitions.</td>
+<td style="text-align: left;"><code>OutboxPartitionScheduler</code> creates 14 days of future partitions in advance. Partitions older than 7 days are unlinked via <code>DROP TABLE</code>. If scheduler fails, alerts trigger via Prometheus.</td>
+<td style="text-align: left;"><strong>BR-OUT-01:</strong> Zero WAL explosion; autovacuum remains undisturbed.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Network Split between Ingress and Order Pod</strong></td>
+<td style="text-align: left;">Ingress-Nginx receives connection timeout or 502 Bad Gateway from upstream.</td>
+<td style="text-align: left;">Kubernetes Service controller marks pod as unready via <code>/actuator/health</code>. Kube-proxy redirects traffic to healthy replica pods within 1 second.</td>
+<td style="text-align: left;"><strong>SLA:</strong> High availability; zero permanent connection blackholes.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Local SMS Gateway Buffer Saturated</strong></td>
+<td style="text-align: left;">High burst of OTP verification requests exceeds memory buffer size.</td>
+<td style="text-align: left;">Ring-buffer eviction policy automatically discards the oldest acknowledged SMS entries while keeping the most recent 10,000 unread OTP messages.</td>
+<td style="text-align: left;"><strong>BR-SMS-01:</strong> Zero memory exhaustion or OutOfMemoryError crashes.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="6-observability-telemetry-quality-gates">6. Observability, Telemetry &amp; Quality Gates</h2>
+<p>The system exposes unified telemetry across the single-port ingress:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Metric Name</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Source Pod</th>
+<th style="text-align: left;">Production Threshold &amp; Alert Condition</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>spatial_query_latency_seconds</code></td>
+<td style="text-align: left;">Histogram</td>
+<td style="text-align: left;"><code>catalog-service</code></td>
+<td style="text-align: left;">p99 &lt; 15ms. Alert if p99 &gt; 50ms over 5-minute window.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>dispatch_lease_claim_contention_total</code></td>
+<td style="text-align: left;">Counter</td>
+<td style="text-align: left;"><code>order-service</code></td>
+<td style="text-align: left;">Tracks rejected concurrent claim attempts.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>outbox_partition_prune_duration_ms</code></td>
+<td style="text-align: left;">Gauge</td>
+<td style="text-align: left;"><code>order-service</code></td>
+<td style="text-align: left;">Must be &lt; 100ms (indicates OS filesystem <code>unlink</code>).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>pg_stat_database_dead_tuples</code></td>
+<td style="text-align: left;">Gauge</td>
+<td style="text-align: left;"><code>postgres</code></td>
+<td style="text-align: left;">Must remain flat (<code>n_dead_tup == 0</code> for outbox tables).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>jvm_threads_virtual_active</code></td>
+<td style="text-align: left;">Gauge</td>
+<td style="text-align: left;">All Core Services</td>
+<td style="text-align: left;">Tracks active Project Loom virtual threads.</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.instant", "navigation.tracking", "navigation.tabs", "navigation.sections", "navigation.top", "toc.follow", "content.code.copy"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>

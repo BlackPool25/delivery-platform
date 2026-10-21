@@ -1,0 +1,1427 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Production-Grade, 100% Offline, Geodesic-Accurate Food & Video Delivery Engine">
+      
+      
+        <meta name="author" content="Antigravity Systems Team">
+      
+      
+      
+        <link rel="prev" href="../ARCHITECTURE/">
+      
+      
+        <link rel="next" href="../API_REFERENCE/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>System Internals - Sovereign Hyper-Local Delivery Platform</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="deep-purple">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#distributed-systems-internals-mathematical-foundations-engine-mechanics" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Sovereign Hyper-Local Delivery Platform" class="md-header__button md-logo" aria-label="Sovereign Hyper-Local Delivery Platform" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Sovereign Hyper-Local Delivery Platform
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              System Internals
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="deep-purple"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="deep-purple"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/BlackPool25/delivery-platform" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    BlackPool25/delivery-platform
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Overview
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../ARCHITECTURE/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture & MDA
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    <li class="md-tabs__item md-tabs__item--active">
+      <a href="./" class="md-tabs__link">
+        
+  
+  
+    
+  
+  System Internals
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../API_REFERENCE/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  REST API Reference
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../RUNBOOK/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Operations Runbook
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Sovereign Hyper-Local Delivery Platform" class="md-nav__button md-logo" aria-label="Sovereign Hyper-Local Delivery Platform" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Sovereign Hyper-Local Delivery Platform
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/BlackPool25/delivery-platform" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    BlackPool25/delivery-platform
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ARCHITECTURE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture & MDA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System Internals
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System Internals
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-deep-dive-1-geodesic-differential-geometry-vs-web-mercator-distortion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Deep-Dive 1: Geodesic Differential Geometry vs Web Mercator Distortion
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Deep-Dive 1: Geodesic Differential Geometry vs Web Mercator Distortion">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11-the-mathematical-fallacy-of-planar-projections-in-hyper-local-delivery" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.1 The Mathematical Fallacy of Planar Projections in Hyper-Local Delivery
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12-latitude-distortion-matrix" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.2 Latitude Distortion Matrix
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#13-the-production-consequence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.3 The Production Consequence
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#14-postgis-ellipsoidal-geodesic-realization-geography4326" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.4 PostGIS Ellipsoidal Geodesic Realization (geography(4326))
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-deep-dive-2-uber-h3-discrete-global-grid-bitfield-mechanics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Deep-Dive 2: Uber H3 Discrete Global Grid Bitfield Mechanics
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Deep-Dive 2: Uber H3 Discrete Global Grid Bitfield Mechanics">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-the-need-for-coarse-hierarchical-binning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 The Need for Coarse Hierarchical Binning
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-64-bit-h3-index-bitfield-layout" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2 64-Bit H3 Index Bitfield Layout
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23-selection-of-resolution-8-for-hyper-local-food-video" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3 Selection of Resolution 8 for Hyper-Local Food &amp; Video
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-deep-dive-3-postgresql-mvcc-write-ahead-log-wal-zero-wal-partition-unlinking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Deep-Dive 3: PostgreSQL MVCC, Write-Ahead Log (WAL) &amp; Zero-WAL Partition Unlinking
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Deep-Dive 3: PostgreSQL MVCC, Write-Ahead Log (WAL) &amp; Zero-WAL Partition Unlinking">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-postgresql-mvcc-heap-page-internals" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 PostgreSQL MVCC Heap Page Internals
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-the-disaster-of-standard-sql-delete-on-outbox-tables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 The Disaster of Standard SQL DELETE on Outbox Tables
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-the-zero-wal-solution-declarative-range-partition-unlinking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 The Zero-WAL Solution: Declarative Range Partition Unlinking
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-deep-dive-4-deterministic-1-to-1-dispatch-state-machine-poisson-collision-probability" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Deep-Dive 4: Deterministic 1-to-1 Dispatch State Machine &amp; Poisson Collision Probability
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Deep-Dive 4: Deterministic 1-to-1 Dispatch State Machine &amp; Poisson Collision Probability">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-the-thundering-herd-failure-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 The Thundering Herd Failure Model
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-the-1-to-1-targeted-lease-protocol" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 The 1-to-1 Targeted Lease Protocol
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-deep-dive-5-double-entry-immutable-ledger-microsecond-escrow-settlement" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Deep-Dive 5: Double-Entry Immutable Ledger &amp; Microsecond Escrow Settlement
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Deep-Dive 5: Double-Entry Immutable Ledger &amp; Microsecond Escrow Settlement">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-financial-integrity-the-elimination-of-floating-point-math" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 Financial Integrity &amp; The Elimination of Floating-Point Math
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-immutable-double-entry-ledger-mathematical-axiom" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2 Immutable Double-Entry Ledger Mathematical Axiom
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#53-escrow-two-phase-commit-lifecycle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3 Escrow Two-Phase Commit Lifecycle
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../API_REFERENCE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    REST API Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../RUNBOOK/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Operations Runbook
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-deep-dive-1-geodesic-differential-geometry-vs-web-mercator-distortion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Deep-Dive 1: Geodesic Differential Geometry vs Web Mercator Distortion
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Deep-Dive 1: Geodesic Differential Geometry vs Web Mercator Distortion">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11-the-mathematical-fallacy-of-planar-projections-in-hyper-local-delivery" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.1 The Mathematical Fallacy of Planar Projections in Hyper-Local Delivery
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12-latitude-distortion-matrix" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.2 Latitude Distortion Matrix
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#13-the-production-consequence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.3 The Production Consequence
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#14-postgis-ellipsoidal-geodesic-realization-geography4326" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.4 PostGIS Ellipsoidal Geodesic Realization (geography(4326))
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-deep-dive-2-uber-h3-discrete-global-grid-bitfield-mechanics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Deep-Dive 2: Uber H3 Discrete Global Grid Bitfield Mechanics
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Deep-Dive 2: Uber H3 Discrete Global Grid Bitfield Mechanics">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-the-need-for-coarse-hierarchical-binning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 The Need for Coarse Hierarchical Binning
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-64-bit-h3-index-bitfield-layout" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2 64-Bit H3 Index Bitfield Layout
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23-selection-of-resolution-8-for-hyper-local-food-video" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3 Selection of Resolution 8 for Hyper-Local Food &amp; Video
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-deep-dive-3-postgresql-mvcc-write-ahead-log-wal-zero-wal-partition-unlinking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Deep-Dive 3: PostgreSQL MVCC, Write-Ahead Log (WAL) &amp; Zero-WAL Partition Unlinking
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Deep-Dive 3: PostgreSQL MVCC, Write-Ahead Log (WAL) &amp; Zero-WAL Partition Unlinking">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-postgresql-mvcc-heap-page-internals" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 PostgreSQL MVCC Heap Page Internals
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-the-disaster-of-standard-sql-delete-on-outbox-tables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 The Disaster of Standard SQL DELETE on Outbox Tables
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-the-zero-wal-solution-declarative-range-partition-unlinking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 The Zero-WAL Solution: Declarative Range Partition Unlinking
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-deep-dive-4-deterministic-1-to-1-dispatch-state-machine-poisson-collision-probability" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Deep-Dive 4: Deterministic 1-to-1 Dispatch State Machine &amp; Poisson Collision Probability
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Deep-Dive 4: Deterministic 1-to-1 Dispatch State Machine &amp; Poisson Collision Probability">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-the-thundering-herd-failure-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 The Thundering Herd Failure Model
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-the-1-to-1-targeted-lease-protocol" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 The 1-to-1 Targeted Lease Protocol
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-deep-dive-5-double-entry-immutable-ledger-microsecond-escrow-settlement" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Deep-Dive 5: Double-Entry Immutable Ledger &amp; Microsecond Escrow Settlement
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Deep-Dive 5: Double-Entry Immutable Ledger &amp; Microsecond Escrow Settlement">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-financial-integrity-the-elimination-of-floating-point-math" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 Financial Integrity &amp; The Elimination of Floating-Point Math
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-immutable-double-entry-ledger-mathematical-axiom" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2 Immutable Double-Entry Ledger Mathematical Axiom
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#53-escrow-two-phase-commit-lifecycle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3 Escrow Two-Phase Commit Lifecycle
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="distributed-systems-internals-mathematical-foundations-engine-mechanics">Distributed Systems Internals: Mathematical Foundations &amp; Engine Mechanics</h1>
+<blockquote>
+<p><strong>Sovereign Hyper-Local Video &amp; Food Delivery Platform</strong><br />
+<em>Deep Systems Engineering Handbook: Geospatial Differential Geometry, Discrete Global Grids, Storage Engine Mechanics &amp; Concurrency Theory</em></p>
+</blockquote>
+<hr />
+<h2 id="1-deep-dive-1-geodesic-differential-geometry-vs-web-mercator-distortion">1. Deep-Dive 1: Geodesic Differential Geometry vs Web Mercator Distortion</h2>
+<h3 id="11-the-mathematical-fallacy-of-planar-projections-in-hyper-local-delivery">1.1 The Mathematical Fallacy of Planar Projections in Hyper-Local Delivery</h3>
+<p>Commercial geospatial applications frequently make the catastrophic mistake of projecting spherical Earth coordinates <span class="arithmatex">\((\phi, \lambda)\)</span> into <strong>Web Mercator (<code>EPSG:3857</code>)</strong> to perform planar Euclidean geometry. </p>
+<p>The forward projection from geodetic latitude <span class="arithmatex">\(\phi\)</span> and longitude <span class="arithmatex">\(\lambda\)</span> to Web Mercator Cartesian coordinates <span class="arithmatex">\((x, y)\)</span> is defined as:</p>
+<div class="arithmatex">\[x = R \cdot \lambda$$
+$$y = R \cdot \ln\left[\tan\left(\frac{\pi}{4} + \frac{\phi}{2}\right)\right]\]</div>
+<p>where <span class="arithmatex">\(R = 6,378,137.0\text{ meters}\)</span> is the semi-major equatorial radius. </p>
+<p>The differential scale factor <span class="arithmatex">\(k\)</span> is given by the derivative of arc length:</p>
+<div class="arithmatex">\[k(\phi) = \sec(\phi) = \frac{1}{\cos(\phi)}\]</div>
+<p>Because distance distorts by <span class="arithmatex">\(k\)</span>, area distorts quadratically by <span class="arithmatex">\(k^2\)</span>:</p>
+<div class="arithmatex">\[\text{Area Factor}(\phi) = \frac{1}{\cos^2(\phi)}\]</div>
+<h3 id="12-latitude-distortion-matrix">1.2 Latitude Distortion Matrix</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">City</th>
+<th style="text-align: left;">Latitude (<span class="arithmatex">\(\phi\)</span>)</th>
+<th style="text-align: left;">Linear Distortion (<span class="arithmatex">\(k - 1\)</span>)</th>
+<th style="text-align: left;">Area Distortion (<span class="arithmatex">\(k^2 - 1\)</span>)</th>
+<th style="text-align: left;">Planar 2km Circle Actual Ground Radius</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Singapore</strong></td>
+<td style="text-align: left;"><span class="arithmatex">\(1.35^\circ\text{N}\)</span></td>
+<td style="text-align: left;"><span class="arithmatex">\(+0.03\%\)</span></td>
+<td style="text-align: left;"><span class="arithmatex">\(+0.06\%\)</span></td>
+<td style="text-align: left;"><span class="arithmatex">\(1,999.4\text{ m}\)</span></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Miami</strong></td>
+<td style="text-align: left;"><span class="arithmatex">\(25.76^\circ\text{N}\)</span></td>
+<td style="text-align: left;"><span class="arithmatex">\(+11.02\%\)</span></td>
+<td style="text-align: left;"><span class="arithmatex">\(+23.25\%\)</span></td>
+<td style="text-align: left;"><span class="arithmatex">\(1,801.5\text{ m}\)</span></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>San Francisco</strong></td>
+<td style="text-align: left;"><span class="arithmatex">\(37.77^\circ\text{N}\)</span></td>
+<td style="text-align: left;"><strong><span class="arithmatex">\(+26.34\%\)</span></strong></td>
+<td style="text-align: left;"><strong><span class="arithmatex">\(+59.62\%\)</span></strong></td>
+<td style="text-align: left;"><strong><span class="arithmatex">\(1,583.0\text{ m}\)</span></strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Seattle</strong></td>
+<td style="text-align: left;"><span class="arithmatex">\(47.60^\circ\text{N}\)</span></td>
+<td style="text-align: left;"><strong><span class="arithmatex">\(+48.30\%\)</span></strong></td>
+<td style="text-align: left;"><strong><span class="arithmatex">\(+119.93\%\)</span></strong></td>
+<td style="text-align: left;"><strong><span class="arithmatex">\(1,348.6\text{ m}\)</span></strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>London</strong></td>
+<td style="text-align: left;"><span class="arithmatex">\(51.50^\circ\text{N}\)</span></td>
+<td style="text-align: left;"><strong><span class="arithmatex">\(+60.65\%\)</span></strong></td>
+<td style="text-align: left;"><strong><span class="arithmatex">\(+158.09\%\)</span></strong></td>
+<td style="text-align: left;"><strong><span class="arithmatex">\(1,244.9\text{ m}\)</span></strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="13-the-production-consequence">1.3 The Production Consequence</h3>
+<p>If a restaurant in San Francisco sets a delivery boundary as a <span class="arithmatex">\(2.0\text{ km}\)</span> circle in <code>EPSG:3857</code>, the actual physical ground radius covered is only <strong><span class="arithmatex">\(1.58\text{ km}\)</span></strong>—a loss of nearly <span class="arithmatex">\(420\text{ meters}\)</span> in every direction! </p>
+<p>Customers standing <span class="arithmatex">\(1.7\text{ km}\)</span> away from the restaurant are falsely told: <em>"You are outside the delivery area."</em> Conversely, if the zone is scaled up to compensate, drivers are assigned to addresses located in the Pacific Ocean or across uncrossable water bodies.</p>
+<h3 id="14-postgis-ellipsoidal-geodesic-realization-geography4326">1.4 PostGIS Ellipsoidal Geodesic Realization (<code>geography(4326)</code>)</h3>
+<p>To eliminate projection distortion, this platform mandates that all spatial columns use <strong><code>geography(Polygon, 4326)</code></strong> and <strong><code>geography(Point, 4326)</code></strong>.</p>
+<p>PostGIS computes distance and containment directly on the <strong>WGS 84 Spheroid</strong> using Vincenty's inverse formula and Karney's geodesic algorithms:
+- Semi-major axis <span class="arithmatex">\(a = 6,378,137.0\text{ m}\)</span>
+- Flattening <span class="arithmatex">\(f = \frac{1}{298.257223563}\)</span>
+- Semi-minor axis <span class="arithmatex">\(b = a(1 - f) \approx 6,356,752.3142\text{ m}\)</span></p>
+<p>Under this model, <code>ST_Covers(delivery_zone, dropoff_location)</code> evaluates whether the geodetic point lies strictly on the ellipsoidal surface enclosed by the geodesic polygon boundary, achieving <strong>sub-millimeter precision worldwide</strong>.</p>
+<hr />
+<h2 id="2-deep-dive-2-uber-h3-discrete-global-grid-bitfield-mechanics">2. Deep-Dive 2: Uber H3 Discrete Global Grid Bitfield Mechanics</h2>
+<h3 id="21-the-need-for-coarse-hierarchical-binning">2.1 The Need for Coarse Hierarchical Binning</h3>
+<p>Executing exact PostGIS geodesic containment checks (<code>ST_Covers</code>) across <span class="arithmatex">\(10,000\)</span> active restaurants requires <span class="arithmatex">\(O(N)\)</span> computational complexity per user swipe. At 1,000 concurrent video reel viewers, this generates <span class="arithmatex">\(10^7\)</span> geodesic intersection evaluations per second, saturating CPU caches.</p>
+<p>We decouple spatial indexing into a <strong>Two-Stage Candidate Pipeline</strong> utilizing the <strong>Uber H3 Discrete Global Grid System</strong>.</p>
+<h3 id="22-64-bit-h3-index-bitfield-layout">2.2 64-Bit H3 Index Bitfield Layout</h3>
+<p>Every H3 cell is represented as a single unsigned 64-bit integer (<code>uint64</code>), bit-packed for instant in-memory comparison:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a> 0               1               2               3
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a> 0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>| Reserved | Mode | Edge |  Res  |   Base Cell   | Cell Digit 1 |
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>| Cell Digit 2  | Cell Digit 3  | ...           | Cell Digit 15 |
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+</span></code></pre></div>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Field Name</th>
+<th style="text-align: left;">Bit Width</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Reserved</strong></td>
+<td style="text-align: left;">1 bit</td>
+<td style="text-align: left;">Reserved for future schema flags.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Mode</strong></td>
+<td style="text-align: left;">4 bits</td>
+<td style="text-align: left;">Index mode (<code>1</code> = Hexagon Cell, <code>2</code> = Directed Edge, <code>3</code> = Bidirectional Edge).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Edge Mode</strong></td>
+<td style="text-align: left;">3 bits</td>
+<td style="text-align: left;">Sub-edge identifier (0 for cells).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Resolution</strong></td>
+<td style="text-align: left;">4 bits</td>
+<td style="text-align: left;">Grid resolution level (<span class="arithmatex">\(0 \le \text{Res} \le 15\)</span>). Stored as binary integer.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Base Cell</strong></td>
+<td style="text-align: left;">7 bits</td>
+<td style="text-align: left;">One of 122 fundamental icosahedron base cells (<span class="arithmatex">\(0 \le \text{BaseCell} \le 121\)</span>).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Cell Digits</strong></td>
+<td style="text-align: left;">45 bits</td>
+<td style="text-align: left;">15 resolution levels, each encoded as a 3-bit octal digit (<span class="arithmatex">\(0 \le d_i \le 6\)</span>).</td>
+</tr>
+</tbody>
+</table>
+<h3 id="23-selection-of-resolution-8-for-hyper-local-food-video">2.3 Selection of Resolution 8 for Hyper-Local Food &amp; Video</h3>
+<p>In the H3 aperture 7 hierarchy, each finer resolution decomposes a hexagon into approximately 7 child hexagons:</p>
+<div class="arithmatex">\[A_{\text{child}} \approx \frac{1}{7} A_{\text{parent}}\]</div>
+<p>At <strong>Resolution 8</strong>:
+- Average hexagon area: <strong><span class="arithmatex">\(0.7373\text{ km}^2\)</span></strong> (<span class="arithmatex">\(737,327\text{ m}^2\)</span>)
+- Hexagon edge length: <strong><span class="arithmatex">\(\approx 461.4\text{ meters}\)</span></strong>
+- Hexagon diameter (vertex to vertex): <strong><span class="arithmatex">\(\approx 922.8\text{ meters}\)</span></strong></p>
+<p>Resolution 8 aligns with the typical human walking and local delivery radius. When a customer opens the video feed:
+1. The customer's coordinate is mapped to <span class="arithmatex">\(H3_{\text{cust}}\)</span> in <span class="arithmatex">\(O(1)\)</span> CPU time.
+2. The candidate cell set is retrieved using a 1-ring expansion (<code>kRing(H3, 1)</code>), yielding exactly <strong>7 discrete integers</strong>:
+   $<span class="arithmatex">\(\text{Cells} = \{ H3_0, H3_1, H3_2, H3_3, H3_4, H3_5, H3_6 \}\)</span>$
+3. The database executes an indexed integer equality join:
+   <div class="language-sql highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">SELECT</span><span class="w"> </span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">restaurants</span><span class="w"> </span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="k">WHERE</span><span class="w"> </span><span class="n">h3_res8</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="p">(:</span><span class="n">h3_0</span><span class="p">,</span><span class="w"> </span><span class="p">:</span><span class="n">h3_1</span><span class="p">,</span><span class="w"> </span><span class="p">:</span><span class="n">h3_2</span><span class="p">,</span><span class="w"> </span><span class="p">:</span><span class="n">h3_3</span><span class="p">,</span><span class="w"> </span><span class="p">:</span><span class="n">h3_4</span><span class="p">,</span><span class="w"> </span><span class="p">:</span><span class="n">h3_5</span><span class="p">,</span><span class="w"> </span><span class="p">:</span><span class="n">h3_6</span><span class="p">)</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">  </span><span class="k">AND</span><span class="w"> </span><span class="n">is_active</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">true</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">  </span><span class="k">AND</span><span class="w"> </span><span class="n">ST_Covers</span><span class="p">(</span><span class="n">delivery_zone</span><span class="p">,</span><span class="w"> </span><span class="p">:</span><span class="n">customer_dropoff</span><span class="p">);</span>
+</span></code></pre></div>
+4. The candidate pool is reduced from <span class="arithmatex">\(10,000\)</span> to <span class="arithmatex">\(\approx 5\)</span> candidate rows, resulting in <strong><span class="arithmatex">\(99.95\%\)</span> query pruning</strong> before geodesic evaluation occurs.</p>
+<hr />
+<h2 id="3-deep-dive-3-postgresql-mvcc-write-ahead-log-wal-zero-wal-partition-unlinking">3. Deep-Dive 3: PostgreSQL MVCC, Write-Ahead Log (WAL) &amp; Zero-WAL Partition Unlinking</h2>
+<h3 id="31-postgresql-mvcc-heap-page-internals">3.1 PostgreSQL MVCC Heap Page Internals</h3>
+<p>PostgreSQL uses Multi-Version Concurrency Control (MVCC) to ensure readers never block writers and writers never block readers. Understanding why standard SQL <code>DELETE</code> queries destroy outbox performance requires inspecting the physical layout of a PostgreSQL <strong>8KB Heap Page</strong>:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>+-------------------------------------------------------------------+
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>| PageHeaderData (24 bytes)                                         |
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>|  - pd_lsn (Log Sequence Number of last change)                    |
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>|  - pd_checksum, pd_flags, pd_lower, pd_upper, pd_special          |
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>+-------------------------------------------------------------------+
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>| ItemPointerData (Line Pointers: lp_offset, lp_flags, lp_len)      |
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>|  [Pointer 1] [Pointer 2] [Pointer 3] ... -----&gt; (grows downward)  |
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>+-------------------------------------------------------------------+
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>|                     FREE SPACE REGION                             |
+</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>+-------------------------------------------------------------------+
+</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>| &lt;----- (grows upward)                                             |
+</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>| Tuple Header (23 bytes): t_xmin, t_xmax, t_cid, t_infomask        |
+</span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>| Tuple User Data (JSONB payload, UUIDs, Timestamps)                |
+</span><span id="__span-2-14"><a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>+-------------------------------------------------------------------+
+</span></code></pre></div>
+<h3 id="32-the-disaster-of-standard-sql-delete-on-outbox-tables">3.2 The Disaster of Standard SQL <code>DELETE</code> on Outbox Tables</h3>
+<p>When a conventional background job cleans up processed outbox events via:</p>
+<div class="language-sql highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">DELETE</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">outbox_events</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">created_at</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">NOW</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nb">INTERVAL</span><span class="w"> </span><span class="s1">'7 days'</span><span class="p">;</span>
+</span></code></pre></div>
+<p>PostgreSQL <strong>does not free disk space</strong>. Instead, it executes the following operations:
+1. Locates every matching tuple and writes the current Transaction ID into <code>t_xmax</code>.
+2. Marks the line pointer status as dead (<code>LP_DEAD</code>).
+3. For every deleted row, generates a <strong>WAL deletion record</strong> and writes it to the WAL buffer. Under a load of 50,000 daily orders, this generates gigabytes of redundant WAL stream records.
+4. Downstream Logical Replication Slots (<code>pg_replication_slots</code>) must process every single WAL deletion record, stalling Change Data Capture (CDC) pipelines.
+5. The heap page now contains dead tuples. The page cannot be truncated until the <strong>Autovacuum Daemon</strong> performs a full sequential page scan, updates the Free Space Map (FSM), and freezes transaction IDs.</p>
+<h3 id="33-the-zero-wal-solution-declarative-range-partition-unlinking">3.3 The Zero-WAL Solution: Declarative Range Partition Unlinking</h3>
+<p>This platform eliminates MVCC dead-tuple churn entirely by declaratively partitioning <code>outbox_events</code> by daily range:</p>
+<div class="language-sql highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">outbox_events</span><span class="w"> </span><span class="p">(</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">    </span><span class="n">id</span><span class="w"> </span><span class="n">UUID</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="n">uuid_generate_v4</span><span class="p">(),</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">    </span><span class="n">aggregate_type</span><span class="w"> </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">64</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">    </span><span class="n">aggregate_id</span><span class="w"> </span><span class="n">UUID</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">    </span><span class="n">event_type</span><span class="w"> </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">64</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">    </span><span class="n">payload</span><span class="w"> </span><span class="n">JSONB</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">    </span><span class="n">created_at</span><span class="w"> </span><span class="k">TIMESTAMP</span><span class="w"> </span><span class="k">WITH</span><span class="w"> </span><span class="k">TIME</span><span class="w"> </span><span class="k">ZONE</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="n">NOW</span><span class="p">(),</span>
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">    </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="w"> </span><span class="p">(</span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">created_at</span><span class="p">)</span>
+</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="p">)</span><span class="w"> </span><span class="n">PARTITION</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">RANGE</span><span class="w"> </span><span class="p">(</span><span class="n">created_at</span><span class="p">);</span>
+</span></code></pre></div>
+<p>Every physical partition is an autonomous relation on disk:
+- <code>outbox_events_y2026m10d21</code> <span class="arithmatex">\(\rightarrow\)</span> physical file <code>base/16384/28491</code></p>
+<p>When a daily partition exceeds the 7-day retention horizon:</p>
+<div class="language-sql highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">DROP</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">outbox_events_y2026m10d14</span><span class="p">;</span>
+</span></code></pre></div>
+<p><strong>The Physical OS Mechanics of <code>DROP TABLE</code>:</strong>
+1. PostgreSQL removes the table entry from system catalogs (<code>pg_class</code>, <code>pg_partitioned_table</code>) in <strong><span class="arithmatex">\(O(1)\)</span> memory time</strong>.
+2. PostgreSQL requests the Linux kernel to issue an <strong><code>unlink()</code> system call</strong> on the physical file descriptor (<code>relfilenode</code>).
+3. The ext4/XFS filesystem reclaims the underlying inode and data blocks immediately.
+4. <strong>Metrics Result:</strong>
+   - Dead tuples generated: <strong><code>n_dead_tup == 0</code></strong>
+   - Heap page scan cost: <strong><code>0 pages read</code></strong>
+   - WAL records generated: <strong>Negligible catalog metadata change</strong>
+   - Replication slot lag: <strong><span class="arithmatex">\(0\text{ ms}\)</span></strong></p>
+<hr />
+<h2 id="4-deep-dive-4-deterministic-1-to-1-dispatch-state-machine-poisson-collision-probability">4. Deep-Dive 4: Deterministic 1-to-1 Dispatch State Machine &amp; Poisson Collision Probability</h2>
+<h3 id="41-the-thundering-herd-failure-model">4.1 The Thundering Herd Failure Model</h3>
+<p>In naive food delivery systems, when an order reaches <code>READY_FOR_PICKUP</code>, the backend broadcasts an offer to all <span class="arithmatex">\(M\)</span> active couriers within radius <span class="arithmatex">\(R\)</span>.</p>
+<p>Assume driver acceptance attempts follow a <strong>Poisson arrival process</strong> with arrival rate <span class="arithmatex">\(\lambda = \frac{k}{\tau}\)</span> (where <span class="arithmatex">\(k\)</span> drivers attempt acceptance within network latency window <span class="arithmatex">\(\tau \approx 200\text{ ms}\)</span>):</p>
+<div class="arithmatex">\[P(N \ge 2 \text{ claims in window } \tau) = 1 - e^{-\lambda \tau} - (\lambda \tau) e^{-\lambda \tau}\]</div>
+<p>For a busy metropolitan sector where <span class="arithmatex">\(\lambda \tau = 3.5\)</span>:</p>
+<div class="arithmatex">\[P(\text{Collision}) = 1 - e^{-3.5} - 3.5 e^{-3.5} = 1 - 0.0302 - 0.1057 \approx 86.4\%\]</div>
+<p>Under broadcast dispatch, <strong><span class="arithmatex">\(86.4\%\)</span> of orders experience high-concurrency race conditions</strong>. Drivers encounter screen freezes, database row locks stall HTTP threads, and <span class="arithmatex">\(M-1\)</span> drivers experience psychological rejection fatigue.</p>
+<h3 id="42-the-1-to-1-targeted-lease-protocol">4.2 The 1-to-1 Targeted Lease Protocol</h3>
+<p>We eliminate race conditions by transforming the dispatch problem from an uncoordinated competition into a <strong>deterministic, serialized token lease</strong>:</p>
+<ol>
+<li><strong>Ranking Pipeline:</strong>
+   $<span class="arithmatex">\(\text{Candidate Score} = w_1 \cdot \text{ETA}_{\text{Valhalla}} + w_2 \cdot \text{Rating} - w_3 \cdot \text{ActiveOrders}\)</span>$</li>
+<li><strong>Exclusive Lease Token:</strong>
+   The top candidate (<span class="arithmatex">\(C_1\)</span>) receives an exclusive lease token valid for exactly <strong><span class="arithmatex">\(\Delta t = 30\text{ seconds}\)</span></strong>:
+   $<span class="arithmatex">\(\text{LeaseExpiry} = t_{\text{now}} + 30.0\text{s}\)</span>$</li>
+<li><strong>Database Guard Predicate:</strong>
+   When courier <span class="arithmatex">\(C_1\)</span> accepts the offer, the application executes an atomic conditional update:
+   <div class="language-sql highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">UPDATE</span><span class="w"> </span><span class="n">orders</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="k">SET</span><span class="w"> </span><span class="n">courier_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">:</span><span class="n">courierId</span><span class="p">,</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">    </span><span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'DISPATCHED'</span><span class="p">,</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">    </span><span class="k">version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">version</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">    </span><span class="n">updated_at</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">NOW</span><span class="p">()</span>
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="k">WHERE</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">:</span><span class="n">orderId</span>
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="w">  </span><span class="k">AND</span><span class="w"> </span><span class="n">courier_id</span><span class="w"> </span><span class="k">IS</span><span class="w"> </span><span class="k">NULL</span>
+</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="w">  </span><span class="k">AND</span><span class="w"> </span><span class="n">dispatch_lease_expires_at</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">NOW</span><span class="p">();</span>
+</span></code></pre></div></li>
+<li><strong>Collision Probability:</strong>
+   Because only candidate <span class="arithmatex">\(C_1\)</span> holds the active lease token, the arrival rate for competing claims <span class="arithmatex">\(\lambda_{\text{competitors}} = 0\)</span>:
+   $<span class="arithmatex">\(P(\text{Collision}) = 0.000000\%\)</span>$</li>
+<li><strong>Fault Recovery:</strong>
+   If courier <span class="arithmatex">\(C_1\)</span> does not accept within <span class="arithmatex">\(30.0\text{ seconds}\)</span>, the lease expires passively without requiring distributed distributed locks. The background <code>DispatchLeaseEvictionDaemon</code> detects that <span class="arithmatex">\(\text{LeaseExpiry} &lt; t_{\text{now}}\)</span> and advances the offer token to candidate <span class="arithmatex">\(C_2\)</span>.</li>
+</ol>
+<hr />
+<h2 id="5-deep-dive-5-double-entry-immutable-ledger-microsecond-escrow-settlement">5. Deep-Dive 5: Double-Entry Immutable Ledger &amp; Microsecond Escrow Settlement</h2>
+<h3 id="51-financial-integrity-the-elimination-of-floating-point-math">5.1 Financial Integrity &amp; The Elimination of Floating-Point Math</h3>
+<p>In distributed commerce, floating-point IEEE 754 arithmetic (<code>float</code>, <code>double</code>) is strictly banned due to binary representation errors:</p>
+<div class="language-java highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="c1">// BANNED: IEEE 754 Floating-Point Error</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="kt">double</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.1</span><span class="p">;</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="kt">double</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.2</span><span class="p">;</span>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">a</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">b</span><span class="p">);</span><span class="w"> </span><span class="c1">// Prints: 0.30000000000000004</span>
+</span></code></pre></div>
+<p>All balances, delivery fees, and subtotals are strictly enforced as <strong><code>NUMERIC(12, 2)</code></strong> in PostgreSQL and <strong><code>BigDecimal</code></strong> in Java with <code>RoundingMode.UNNECESSARY</code>.</p>
+<h3 id="52-immutable-double-entry-ledger-mathematical-axiom">5.2 Immutable Double-Entry Ledger Mathematical Axiom</h3>
+<p>Every monetary transaction consists of balanced journal entries satisfying the fundamental accounting conservation equation:</p>
+<div class="arithmatex">\[\sum_{i=1}^{n} \text{Debits}_i - \sum_{j=1}^{m} \text{Credits}_j = 0.00\]</div>
+<h3 id="53-escrow-two-phase-commit-lifecycle">5.3 Escrow Two-Phase Commit Lifecycle</h3>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>[ Checkout Placed ]
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>        │
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>        ▼
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>[ Phase 1: Escrow HOLD ]
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>  User Balance Account:       -$34.50 (Available Balance reduced)
+</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>  User Held Balance Account:  +$34.50 (Held in escrow lock)
+</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>  Status: HELD (Funds guaranteed, immutable, zero overdraft)
+</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>        │
+</span><span id="__span-8-9"><a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>        ├─────────────────────────────────┬─────────────────────────────────┐
+</span><span id="__span-8-10"><a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>        │ Delivery PIN Verified           │ Merchant Rejects / Cancel       │
+</span><span id="__span-8-11"><a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a>        ▼                                 ▼
+</span><span id="__span-8-12"><a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a>[ Phase 2A: Escrow CAPTURE ]      [ Phase 2B: Escrow REFUND ]
+</span><span id="__span-8-13"><a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a>  User Held Balance:   -$34.50      User Held Balance:   -$34.50
+</span><span id="__span-8-14"><a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a>  Merchant Account:    +$29.50      User Available Bal:  +$34.50
+</span><span id="__span-8-15"><a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a>  Platform Fee Acct:   +$5.00       Status: REFUNDED
+</span><span id="__span-8-16"><a id="__codelineno-8-16" name="__codelineno-8-16" href="#__codelineno-8-16"></a>  Status: CAPTURED                  Balance fully restored to user.
+</span></code></pre></div>
+<p>Because balances are updated within ACID transactions protected by optimistic row versioning (<code>@Version</code>), the platform operates with zero external banking SaaS at runtime while guaranteeing mathematical impossibility of double-spending or negative balances.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.instant", "navigation.tracking", "navigation.tabs", "navigation.sections", "navigation.top", "toc.follow", "content.code.copy"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>
