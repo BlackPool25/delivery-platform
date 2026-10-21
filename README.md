@@ -59,10 +59,19 @@ flowchart TD
     end
 
     subgraph CNI ["Internal Kubernetes CNI Network (ClusterIP & CoreDNS)"]
+        subgraph MapsAndTwin ["Maps, Routing & Digital Twin (Phase 5)"]
+            Martin["🗺️ martin-service:3000<br/>• PMTiles Vector Tile Server<br/>• Offline /tiles/city/{z}/{x}/{y}"]
+            Valhalla["🚗 valhalla-service:8002<br/>• OSM Dynamic Routing Engine<br/>• Turn-by-Turn Maneuvers & ETAs"]
+            Simulator["🛵 courier-simulator:8080<br/>• 20 Virtual Couriers Online<br/>• Auto-Claim & 3s Telemetry Emitter"]
+            UI["🖥️ digital-twin-ui:80<br/>• MapLibre GL Offline Map Client<br/>• Live WebSocket Marker & PIN Handshake"]
+        end
+
         subgraph CoreServices ["Core Domain Microservices (Java 21 / Project Loom Virtual Threads)"]
             Auth["🔐 auth-service:8080<br/>• Passwordless Phone OTP<br/>• Asymmetric Ed25519 JWT Signing<br/>• In-Memory JWKS Discovery"]
             Catalog["🍽️ catalog-service:8080<br/>• PostGIS 4326 Spheroid ST_Covers<br/>• Uber H3 Res 8 Coarse Binning<br/>• Menu & 86-ing Kitchen Catalog"]
             Order["📦 order-service:8080<br/>• Idempotent Checkout<br/>• 1-to-1 Dispatch Lease State Machine<br/>• Saga Timeout Daemon & Daily Outbox"]
+            Tracking["📡 tracking-service:8080<br/>• Geodesic Kinematic Anti-Spoofing<br/>• Redis Geospatial Sharding<br/>• /ws/tracking Gateway"]
+            Media["🎥 media-service:8080<br/>• Chunked TUS Protocol & MinIO S3<br/>• Transcode Job Dispatch"]
         end
 
         subgraph LocalBoundary ["Sovereign Boundary Mocks (Zero Runtime SaaS)"]
@@ -73,16 +82,30 @@ flowchart TD
 
         subgraph Datastores ["Internal Datastores & Replication"]
             Postgres[("🗄️ PostgreSQL 16 (PostGIS 3.4)<br/>• Hardened CDC: max_slot_wal_keep_size=-1<br/>• wal_level=logical<br/>• GiST Spatial R-Tree Indexes")]
+            Redis[("⚡ Redis 7 (In-Memory Telemetry)<br/>• GeoSpatial Clustered Sharding<br/>• Telemetry Breadcrumb TTLs")]
         end
     end
 
     Client -->|HTTP / WebSockets on Port 8080| Ingress
+    Ingress -->|/| UI
+    Ingress -->|/tiles/*| Martin
+    Ingress -->|/routing/*| Valhalla
+    Ingress -->|/api/v1/simulator/*| Simulator
+    Ingress -->|/api/v1/tracking/* & /ws/tracking/*| Tracking
+    Ingress -->|/api/v1/media/*| Media
     Ingress -->|/api/v1/auth/* & /.well-known/*| Auth
     Ingress -->|/api/v1/catalog/*| Catalog
     Ingress -->|/api/v1/orders/*| Order
     Ingress -->|/api/v1/payments/*| Payment
     Ingress -->|/api/v1/sms/* & /admin/sms-inbox| SMS
     Ingress -->|/push/*| Push
+
+    Simulator -->|Claim lease & out-for-delivery| Order
+    Simulator -->|Query road waypoints| Valhalla
+    Simulator -->|Emit 3s GPS telemetry| Tracking
+    Tracking -->|State & breadcrumbs| Redis
+    UI -->|Render offline vector tiles| Martin
+    UI -->|Stream live courier markers| Tracking
 
     Auth -->|User credentials & OTP storage| Postgres
     Auth -.->|OTP dispatch API| SMS
@@ -153,9 +176,17 @@ Every container declares strict CPU and memory bounds matching the resource budg
 | `auth-service` | `200m` | `1000m` | `384Mi` | `768Mi` | Burstable |
 | `catalog-service` | `200m` | `1000m` | `384Mi` | `768Mi` | Burstable |
 | `order-service` | `300m` | `1500m` | `512Mi` | `1024Mi` | Burstable |
+| `tracking-service` | `250m` | `1000m` | `384Mi` | `768Mi` | Burstable |
+| `media-service` | `100m` | `500m` | `256Mi` | `512Mi` | Burstable |
 | `local-payment-service` | `100m` | `500m` | `256Mi` | `384Mi` | Burstable |
 | `local-sms-gateway` | `50m` | `200m` | `64Mi` | `128Mi` | Burstable |
+| `valhalla` (OSM Engine) | `500m` | `2000m` | `1024Mi` | `2048Mi` | Burstable |
+| `martin` (Vector Tiles) | `100m` | `500m` | `128Mi` | `256Mi` | Burstable |
+| `courier-simulator` | `100m` | `500m` | `128Mi` | `256Mi` | Burstable |
+| `digital-twin-ui` | `50m` | `200m` | `64Mi` | `128Mi` | Burstable |
+| `transcode-worker` (AMD) | `500m` | `2000m` | `1024Mi` | `2048Mi` | Burstable |
 | `postgres` (PostGIS 16) | `500m` | `2000m` | `1536Mi` | `3072Mi` | Burstable |
+| `redis` | `100m` | `500m` | `256Mi` | `512Mi` | Burstable |
 
 ---
 
@@ -168,13 +199,23 @@ Every container declares strict CPU and memory bounds matching the resource budg
 git clone https://github.com/BlackPool25/delivery-platform.git
 cd delivery-platform
 
-# Compile and run the complete test reactor (includes PostGIS Testcontainers)
+# Compile and run the complete test reactor (includes PostGIS & Redis Testcontainers)
 ./mvnw clean test
 ```
 
 ### 2. Run Phase Verification Harnesses
 
 ```bash
+# Phase 5: Verify Courier Simulator Runner, Waypoints, Telemetry & PIN Handshake
+./mvnw -pl services/courier-simulator test -Dtest=CourierSimulatorVerificationTest
+./mvnw -pl services/courier-simulator test -Dtest=SimulatorControllerIntegrationTest
+
+# Phase 4: Verify Kinematic Anti-Spoofing Geodesic Filter (V < 120 km/h)
+./mvnw -pl services/tracking-service test -Dtest=KinematicAntiSpoofingVerificationTest
+
+# Phase 4: Verify TUS Resumable Video Upload Ingestion
+./mvnw -pl services/media-service test -Dtest=MediaUploadTusIntegrationTest
+
 # Phase 3: Verify Passwordless Phone OTP & Asymmetric Ed25519 JWKS
 ./mvnw -pl services/auth-service test -Dtest=AuthVerificationGateTest
 

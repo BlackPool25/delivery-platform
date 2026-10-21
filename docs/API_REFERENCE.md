@@ -11,6 +11,11 @@
 - [Local Payment Ledger Service (`/api/v1/payments/*`)](#3-local-payment-ledger-service)
 - [Local SMS Gateway (`/api/v1/sms/*`)](#4-local-sms-gateway)
 - [Push Notification Broker (`/push/*`)](#5-push-notification-broker-ntfy)
+- [Real-Time Telemetry & Tracking (`/api/v1/tracking/*` & `/ws/tracking`)](#6-real-time-telemetry--tracking)
+- [Offline Vector Maps (Martin PMTiles) (`/tiles/*`)](#7-offline-vector-map-tiles-martin-pmtiles)
+- [Valhalla Road Routing Engine (`/routing/*`)](#8-valhalla-dynamic-road-routing-engine)
+- [Virtual Courier Simulator (`/api/v1/simulator/*`)](#9-virtual-courier-simulator)
+- [Digital Twin MapLibre GL Web UI (`/`)](#10-digital-twin-maplibre-gl-web-client)
 
 ---
 
@@ -256,3 +261,117 @@ High-performance internal notification broker for mobile apps and live tracking 
 
 * **Publish Push Alert:** `POST /push/{topic}`
 * **WebSocket Ingest / Streaming:** `ws://localhost:8080/push/{topic}/ws`
+
+---
+
+## 6. Real-Time Telemetry & Tracking
+
+High-frequency GPS telemetry ingestion, regional Redis key sharding, and live WebSocket streaming.
+
+### 6.1 Telemetry Ingestion
+Enforces geodesic kinematic velocity constraint ($V = \frac{\Delta d}{\Delta t} < 120\text{ km/h}$).
+
+* **Endpoint:** `POST /api/v1/tracking/couriers/{courierId}/telemetry`
+* **Headers:** `Content-Type: application/json`
+
+```bash
+curl -X POST "http://localhost:8080/api/v1/tracking/couriers/c0000000-0000-0000-0000-000000000001/telemetry" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "latitude": 37.7749,
+    "longitude": -122.4194,
+    "timestamp": "2026-10-21T11:00:00Z",
+    "speedKmh": 28.5,
+    "heading": 45.0,
+    "accuracy": 4.5
+  }'
+```
+
+### 6.2 Live Tracking WebSocket Gateway
+* **WebSocket URI:** `ws://localhost:8080/ws/tracking` (or `ws://localhost:8080/ws/tracking/{courierId}`)
+* **Subscribed Message Format:**
+```json
+{
+  "courierId": "c0000000-0000-0000-0000-000000000001",
+  "latitude": 37.7749,
+  "longitude": -122.4194,
+  "speedKmh": 28.5,
+  "headingDegrees": 45.0,
+  "h3Index": "8828308281fffff",
+  "status": "ONLINE"
+}
+```
+
+---
+
+## 7. Offline Vector Map Tiles (Martin PMTiles)
+
+Serves pre-compiled offline vector tiles from `/data/tiles/city.pmtiles` using Martin on port 3000.
+
+* **Verification Endpoint:** `GET /tiles/city/{z}/{x}/{y}` (or `/tiles/city/0/0/0`)
+* **Tile Health:** `GET /tiles/health`
+
+```bash
+curl -i http://localhost:8080/tiles/city/0/0/0
+```
+#### Response (`200 OK`):
+* `Content-Type: application/x-protobuf`
+* Returns valid Mapbox Vector Tile (MVT) binary payload.
+
+---
+
+## 8. Valhalla Dynamic Road Routing Engine
+
+Offline turn-by-turn road routing engine computing street vectors and ETAs across San Francisco.
+
+### 8.1 Routing Status
+* **Endpoint:** `GET /routing/status`
+```bash
+curl -s http://localhost:8080/routing/status
+```
+#### Response:
+```json
+{
+  "status": "ready",
+  "version": "3.4.0",
+  "engine": "valhalla-sovereign-v3",
+  "tileset": "san-francisco-osm"
+}
+```
+
+### 8.2 Compute Road Route
+* **Endpoint:** `POST /routing/route` or `GET /routing/route?json={...}`
+```bash
+curl -X POST http://localhost:8080/routing/route \
+  -H "Content-Type: application/json" \
+  -d '{
+    "locations": [
+      {"lat": 37.7749, "lon": -122.4194},
+      {"lat": 37.7650, "lon": -122.4150}
+    ],
+    "costing": "auto"
+  }'
+```
+
+---
+
+## 9. Virtual Courier Simulator
+
+Standalone test worker provisioning 20 virtual couriers in San Francisco dining hubs, claiming 30s dispatch offers, querying Valhalla routes, and emitting telemetry every 3 seconds.
+
+* **Simulator Health & Status:** `GET /api/v1/simulator/status`
+* **List All 20 Couriers:** `GET /api/v1/simulator/couriers`
+* **Inspect Specific Courier:** `GET /api/v1/simulator/couriers/{id}`
+* **Active Simulation Tasks:** `GET /api/v1/simulator/tasks`
+* **Trigger Order Dispatch:** `POST /api/v1/simulator/dispatch/{orderId}`
+* **Manual Simulation Tick:** `POST /api/v1/simulator/tick`
+* **Trigger Doorstep Handshake:** `POST /api/v1/simulator/deliver/{orderId}`
+
+---
+
+## 10. Digital Twin MapLibre GL Web Client
+
+* **URI:** `http://localhost:8080/`
+* Renders offline vector tiles from `/tiles/city/{z}/{x}/{y}`.
+* Connects to `/ws/tracking` to render live courier markers with heading rotation and breadcrumbs.
+* Provides interactive order journey tracker from `PLACED` to `DELIVERED & SETTLED` via PIN handshake.

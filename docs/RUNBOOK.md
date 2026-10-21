@@ -114,8 +114,98 @@ Verify all traffic terminates at host port 8080:
 kubectl get pods -n ingress-nginx
 
 # Check Ingress Routing Resource
-kubectl describe ingress delivery-ingress -n delivery
+kubectl describe ingress delivery-platform-ingress -n delivery-prod
 
 # Verify Port 8080 Binding on Host
 ss -tulpn | grep 8080
+```
+
+---
+
+## 6. Phase 5 Operations & Verification Gate Runbook
+
+### 6.1 Starting Phase 5 Infrastructure
+```bash
+# Option A: Local Docker Compose Ingress Environment
+docker compose -f docker/docker-compose-phase5.yaml up -d
+
+# Option B: Kubernetes Deployment Bundle
+kubectl apply -f k8s/postgres/postgres.yaml
+kubectl apply -f k8s/redis/redis.yaml
+kubectl apply -f k8s/rabbitmq/rabbitmq.yaml
+kubectl apply -f k8s/minio/minio.yaml
+kubectl apply -f k8s/ntfy/ntfy.yaml
+kubectl apply -f k8s/local-payment-service/local-payment-service.yaml
+kubectl apply -f k8s/local-sms-gateway/local-sms-gateway.yaml
+kubectl apply -f k8s/auth-service/auth-service.yaml
+kubectl apply -f k8s/catalog-service/catalog-service.yaml
+kubectl apply -f k8s/order-service/order-service.yaml
+kubectl apply -f k8s/tracking-service/tracking-service.yaml
+kubectl apply -f k8s/media-service/media-service.yaml
+kubectl apply -f k8s/transcoder/transcode-worker.yaml
+kubectl apply -f k8s/martin/martin.yaml
+kubectl apply -f k8s/valhalla/valhalla.yaml
+kubectl apply -f k8s/courier-simulator/courier-simulator.yaml
+kubectl apply -f k8s/digital-twin-ui/digital-twin-ui.yaml
+kubectl apply -f k8s/ingress/delivery-ingress-phase5.yaml
+```
+
+### 6.2 Health & Status Verification Gates
+```bash
+# 1. Verify Ingress Gateway & Order Service
+curl -s http://localhost:8080/api/v1/orders/actuator/health
+
+# 2. Verify Martin Offline Vector Tile Server
+curl -i http://localhost:8080/tiles/city/0/0/0
+# Expected: HTTP 200 OK with Content-Type: application/x-protobuf
+
+# 3. Verify Valhalla Dynamic Routing Engine
+curl -s http://localhost:8080/routing/status
+# Expected: {"status": "ready", ...}
+
+# 4. Verify Virtual Courier Simulator Runner
+curl -s http://localhost:8080/api/v1/simulator/status
+# Expected: {"status": "ONLINE", "totalCouriers": 20, ...}
+```
+
+### 6.3 End-to-End Digital Twin Simulation Run
+```bash
+# 1. Open the MapLibre GL Digital Twin UI in your browser:
+# http://localhost:8080/
+
+# 2. Or execute via CLI:
+# Place Order
+ORDER_ID=$(curl -s -X POST http://localhost:8080/api/v1/orders \
+  -H "Content-Type: application/json" \
+  -d '{
+    "userId": "00000000-0000-0000-0000-000000000001",
+    "restaurantId": "a1111111-1111-1111-1111-111111111111",
+    "dropoffLatitude": 37.7650,
+    "dropoffLongitude": -122.4150,
+    "dropoffBuilding": "450 Valencia St",
+    "dropoffFloor": "3",
+    "dropoffRoom": "3B",
+    "verificationPin": "482915",
+    "items": [{"dishId": "b1111111-1111-1111-1111-111111111101", "dishName": "Birria Tacos", "unitPrice": 14.50, "quantity": 2}]
+  }' | jq -r .id)
+
+# Execute Ledger Hold
+curl -s -X POST "http://localhost:8080/api/v1/orders/${ORDER_ID}/pay"
+
+# Kitchen Accept & Prepare
+curl -s -X POST "http://localhost:8080/api/v1/orders/${ORDER_ID}/accept"
+curl -s -X POST "http://localhost:8080/api/v1/orders/${ORDER_ID}/prepare"
+curl -s -X POST "http://localhost:8080/api/v1/orders/${ORDER_ID}/ready"
+
+# Offer Targeted 30-Second Lease
+curl -s -X POST "http://localhost:8080/api/v1/orders/${ORDER_ID}/lease" \
+  -H "Content-Type: application/json" -d '{"leaseSeconds": 30}'
+
+# Trigger Courier Simulator Dispatch
+curl -s -X POST "http://localhost:8080/api/v1/simulator/dispatch/${ORDER_ID}"
+
+# Complete Doorstep PIN Handshake Verification
+curl -s -X POST "http://localhost:8080/api/v1/orders/${ORDER_ID}/deliver" \
+  -H "Content-Type: application/json" \
+  -d '{"verificationPin": "482915"}'
 ```
