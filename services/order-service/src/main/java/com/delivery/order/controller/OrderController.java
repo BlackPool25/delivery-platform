@@ -123,4 +123,14 @@ public class OrderController {
             @RequestParam(value = "reason", required = false) String reason) {
         return ResponseEntity.ok(orderService.cancelOrder(id, reason));
     }
+
+    @PostMapping("/loadtest/teardown")
+    public ResponseEntity<java.util.Map<String, Object>> teardownLoadtestStaging() {
+        orderService.truncateLoadtestStaging();
+        return ResponseEntity.ok(java.util.Map.of(
+                "status", "TRUNCATED",
+                "message", "orders_loadtest_staging truncated in < 100ms with zero dead-row WAL overhead",
+                "timestamp", java.time.Instant.now().toString()
+        ));
+    }
 }

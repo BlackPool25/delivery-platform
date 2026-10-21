@@ -1,0 +1,15 @@
+apiVersion: chaos-mesh.org/v1alpha1
+kind: PodChaos
+metadata:
+  name: gpu-worker-kill
+  namespace: delivery-prod
+spec:
+  action: pod-kill
+  mode: all
+  selector:
+    namespaces:
+      - delivery-prod
+    labelSelectors:
+      app: transcode-worker
+  scheduler:
+    cron: "@every 3m"

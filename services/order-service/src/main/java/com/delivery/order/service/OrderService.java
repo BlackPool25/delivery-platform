@@ -386,6 +386,12 @@ public class OrderService {
         return mapToResponse(cancelled);
     }
 
+    @Transactional
+    public void truncateLoadtestStaging() {
+        orderRepository.truncateLoadtestStaging();
+        log.info("Truncated orders_loadtest_staging table for synthetic test data fast teardown");
+    }
+
     private void emitOutboxEvent(Order order, String eventType) {
         emitOutboxEvent(order, eventType, Map.of());
     }

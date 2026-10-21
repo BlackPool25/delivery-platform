@@ -1,0 +1,16 @@
+apiVersion: chaos-mesh.org/v1alpha1
+kind: TimeChaos
+metadata:
+  name: worker-time-skew
+  namespace: delivery-prod
+spec:
+  mode: all
+  selector:
+    namespaces:
+      - delivery-prod
+    labelSelectors:
+      app: order-service
+  timeOffset: "200ms"
+  clockIds:
+    - CLOCK_REALTIME
+  duration: "1m"

@@ -58,4 +58,9 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
     @org.springframework.transaction.annotation.Transactional
     @Query(value = "UPDATE orders SET created_at = :createdAt WHERE id = :orderId", nativeQuery = true)
     int updateCreatedAt(@Param("orderId") UUID orderId, @Param("createdAt") Instant createdAt);
+
+    @Modifying
+    @org.springframework.transaction.annotation.Transactional
+    @Query(value = "TRUNCATE TABLE orders_loadtest_staging CASCADE", nativeQuery = true)
+    void truncateLoadtestStaging();
 }

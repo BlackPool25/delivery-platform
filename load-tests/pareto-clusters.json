@@ -1,0 +1,42 @@
+{
+  "hubs": [
+    {
+      "name": "Financial District & Ferry Building",
+      "lat": 37.7955,
+      "lon": -122.3937,
+      "radius_meters": 400,
+      "weight": 0.25
+    },
+    {
+      "name": "SOMA Technology & Dining Corridor",
+      "lat": 37.7844,
+      "lon": -122.4014,
+      "radius_meters": 400,
+      "weight": 0.25
+    },
+    {
+      "name": "Mission District Culinary Hub",
+      "lat": 37.7599,
+      "lon": -122.4148,
+      "radius_meters": 400,
+      "weight": 0.25
+    },
+    {
+      "name": "Marina & North Beach Dining",
+      "lat": 37.8035,
+      "lon": -122.4368,
+      "radius_meters": 400,
+      "weight": 0.25
+    }
+  ],
+  "suburban": {
+    "min_lat": 37.7100,
+    "max_lat": 37.7700,
+    "min_lon": -122.4800,
+    "max_lon": -122.4200
+  },
+  "pareto_ratio": {
+    "hub_percentage": 0.70,
+    "suburban_percentage": 0.30
+  }
+}

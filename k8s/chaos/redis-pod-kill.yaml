@@ -1,0 +1,15 @@
+apiVersion: chaos-mesh.org/v1alpha1
+kind: PodChaos
+metadata:
+  name: redis-pod-kill
+  namespace: delivery-prod
+spec:
+  action: pod-kill
+  mode: one
+  selector:
+    namespaces:
+      - delivery-prod
+    labelSelectors:
+      app: redis
+  scheduler:
+    cron: "@every 2m"

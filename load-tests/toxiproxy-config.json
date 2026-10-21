@@ -1,0 +1,58 @@
+[
+  {
+    "name": "ingress_gateway_cellular",
+    "listen": "0.0.0.0:8474",
+    "upstream": "host.docker.internal:8085",
+    "enabled": true,
+    "toxics": [
+      {
+        "name": "cellular_latency_jitter",
+        "type": "latency",
+        "stream": "downstream",
+        "toxicity": 1.0,
+        "attributes": {
+          "latency": 70,
+          "jitter": 40
+        }
+      },
+      {
+        "name": "lte_downstream_bandwidth",
+        "type": "bandwidth",
+        "stream": "downstream",
+        "toxicity": 1.0,
+        "attributes": {
+          "rate": 1875
+        }
+      },
+      {
+        "name": "lte_upstream_bandwidth",
+        "type": "bandwidth",
+        "stream": "upstream",
+        "toxicity": 1.0,
+        "attributes": {
+          "rate": 625
+        }
+      },
+      {
+        "name": "cellular_packet_loss",
+        "type": "slicer",
+        "stream": "upstream",
+        "toxicity": 0.02,
+        "attributes": {
+          "average_size": 256,
+          "size_variation": 64,
+          "delay": 10000
+        }
+      },
+      {
+        "name": "socket_rst_reset",
+        "type": "reset_peer",
+        "stream": "downstream",
+        "toxicity": 0.005,
+        "attributes": {
+          "timeout": 180000
+        }
+      }
+    ]
+  }
+]

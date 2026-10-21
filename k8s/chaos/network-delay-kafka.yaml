@@ -1,0 +1,26 @@
+apiVersion: chaos-mesh.org/v1alpha1
+kind: NetworkChaos
+metadata:
+  name: kafka-broker-delay
+  namespace: delivery-prod
+spec:
+  action: delay
+  mode: all
+  selector:
+    namespaces:
+      - delivery-prod
+    labelSelectors:
+      app: kafka
+  delay:
+    latency: "500ms"
+    jitter: "50ms"
+  direction: to
+  target:
+    selector:
+      namespaces:
+        - delivery-prod
+      labelSelectors:
+        app: order-service
+  duration: "30s"
+  scheduler:
+    cron: "@every 5m"

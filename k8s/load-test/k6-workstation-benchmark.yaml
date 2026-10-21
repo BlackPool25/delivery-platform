@@ -1,0 +1,44 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: k6-workstation-benchmark
+  namespace: delivery-prod
+  labels:
+    app.kubernetes.io/name: k6-workstation-benchmark
+    app.kubernetes.io/part-of: delivery-platform
+    app.kubernetes.io/component: load-testing
+spec:
+  backoffLimit: 1
+  ttlSecondsAfterFinished: 600
+  template:
+    metadata:
+      labels:
+        app: k6-runner
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: k6
+          image: grafana/k6:latest
+          imagePullPolicy: IfNotPresent
+          command: ["k6", "run", "--vus", "100", "--duration", "1m", "/load-tests/workstation-benchmark.js"]
+          env:
+            - name: BASE_URL
+              value: "http://delivery-platform-ingress.delivery-prod.svc.cluster.local:8080"
+            - name: GRPC_HOST
+              value: "tracking-service.delivery-prod.svc.cluster.local:9090"
+            - name: ENABLE_GRPC
+              value: "true"
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "512Mi"
+            limits:
+              cpu: "1500m"
+              memory: "1024Mi"
+          volumeMounts:
+            - name: loadtest-scripts
+              mountPath: /load-tests
+      volumes:
+        - name: loadtest-scripts
+          configMap:
+            name: k6-test-scripts
