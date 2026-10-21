@@ -1,0 +1,36 @@
+name: Continuous Integration & Verification Gates
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-test:
+    name: Java 21 Multi-Module Build & Spatial Verification
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Set up OpenJDK 21 (Temurin)
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Pull PostGIS Container for Testcontainers
+        run: |
+          docker pull postgis/postgis:16-3.4-alpine
+
+      - name: Execute Verification Gates & Unit Tests
+        run: |
+          ./mvnw clean test --batch-mode
+
+      - name: Package Service JARs
+        run: |
+          ./mvnw package -DskipTests --batch-mode
