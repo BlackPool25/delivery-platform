@@ -1,0 +1,88 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: local-payment-service
+  namespace: delivery
+  labels:
+    app.kubernetes.io/name: local-payment-service
+    app.kubernetes.io/part-of: delivery-platform
+    app.kubernetes.io/component: boundary-mock
+spec:
+  replicas: 1
+  revisionHistoryLimit: 5
+  selector:
+    matchLabels:
+      app: local-payment-service
+  template:
+    metadata:
+      labels:
+        app: local-payment-service
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/actuator/prometheus"
+        prometheus.io/port: "8080"
+    spec:
+      terminationGracePeriodSeconds: 30
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+      containers:
+      - name: local-payment-service
+        image: delivery/local-payment-service:latest
+        imagePullPolicy: IfNotPresent
+        env:
+          - name: SPRING_PROFILES_ACTIVE
+            value: "local"
+          - name: SPRING_DATASOURCE_URL
+            value: "jdbc:postgresql://postgres.delivery.svc:5432/delivery_db"
+          - name: SPRING_DATASOURCE_USERNAME
+            value: "postgres"
+          - name: SPRING_DATASOURCE_PASSWORD
+            value: "postgres"
+        ports:
+          - name: http
+            containerPort: 8080
+        resources:
+          # Strict Resource Allocation Budget (plan.md Section 4.2)
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 384Mi
+        livenessProbe:
+          httpGet:
+            path: /actuator/health/liveness
+            port: 8080
+          initialDelaySeconds: 20
+          periodSeconds: 10
+          timeoutSeconds: 3
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /actuator/health/readiness
+            port: 8080
+          initialDelaySeconds: 15
+          periodSeconds: 5
+          timeoutSeconds: 2
+          failureThreshold: 2
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: local-payment-service
+  namespace: delivery
+  labels:
+    app.kubernetes.io/name: local-payment-service
+    app.kubernetes.io/part-of: delivery-platform
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+  selector:
+    app: local-payment-service

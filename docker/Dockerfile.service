@@ -1,0 +1,61 @@
+# Multi-Stage Production Dockerfile for Spring Boot 3.x (Java 21)
+# Utilizes Spring Boot Layered JAR extraction for optimal layer caching & minimal rebuild times
+
+# ==========================================
+# STAGE 1: Builder & Layer Extractor
+# ==========================================
+FROM eclipse-temurin:21-jdk-alpine AS builder
+WORKDIR /workspace
+
+# Install build prerequisites
+RUN apk add --no-cache curl
+
+# Copy maven wrapper & POM dependencies first for caching
+COPY .mvn/ .mvn/
+COPY mvnw pom.xml ./
+RUN ./mvnw dependency:go-offline -B
+
+# Copy application source & compile
+COPY src/ src/
+RUN ./mvnw clean package -DskipTests -B
+
+# Extract layered JAR into discrete filesystem layers
+WORKDIR /workspace/extracted
+RUN java -Djarmode=layertools -jar /workspace/target/*.jar extract
+
+# ==========================================
+# STAGE 2: Minimal Production JRE Runtime
+# ==========================================
+FROM eclipse-temurin:21-jre-alpine AS runtime
+
+LABEL maintainer="engineering@delivery.app"
+LABEL description="Production Spring Boot 3.x Microservice Image"
+
+# Security: Run as unprivileged non-root user
+RUN addgroup -S spring && adduser -S spring -G spring
+USER spring:spring
+
+WORKDIR /app
+
+# Copy layered JAR slices in order of change frequency (least frequent to most frequent)
+COPY --from=builder --chown=spring:spring /workspace/extracted/dependencies/ ./
+COPY --from=builder --chown=spring:spring /workspace/extracted/spring-boot-loader/ ./
+COPY --from=builder --chown=spring:spring /workspace/extracted/snapshot-dependencies/ ./
+COPY --from=builder --chown=spring:spring /workspace/extracted/application/ ./
+
+# Expose standard microservice application port and management actuator port
+EXPOSE 8080 8081
+
+# JVM Flags optimized for Linux Containers & Kubernetes cgroups
+ENV JAVA_TOOL_OPTIONS="\
+    -XX:+UseG1GC \
+    -XX:MaxRAMPercentage=75.0 \
+    -XX:InitialRAMPercentage=50.0 \
+    -XX:+ExitOnOutOfMemoryError \
+    -XX:+CrashOnOutOfMemoryError \
+    -Djava.security.egd=file:/dev/./urandom \
+    -Dfile.encoding=UTF-8 \
+    -Duser.timezone=UTC"
+
+# Graceful shutdown signal handling (SIGTERM propagation)
+ENTRYPOINT ["java", "org.springframework.boot.loader.launch.JarLauncher"]

@@ -1,0 +1,86 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ntfy
+  namespace: delivery
+  labels:
+    app.kubernetes.io/name: ntfy
+    app.kubernetes.io/part-of: delivery-platform
+    app.kubernetes.io/component: push-broker
+spec:
+  replicas: 1
+  revisionHistoryLimit: 5
+  selector:
+    matchLabels:
+      app: ntfy
+  template:
+    metadata:
+      labels:
+        app: ntfy
+    spec:
+      terminationGracePeriodSeconds: 15
+      containers:
+      - name: ntfy
+        image: binwiederhier/ntfy:v2.11.0
+        imagePullPolicy: IfNotPresent
+        command: ["ntfy", "serve"]
+        env:
+          - name: NTFY_BASE_URL
+            value: "http://localhost:8080/push"
+          - name: NTFY_BEHIND_PROXY
+            value: "true"
+          - name: NTFY_LISTEN_HTTP
+            value: ":80"
+          - name: NTFY_CACHE_FILE
+            value: "/var/cache/ntfy/cache.db"
+          - name: NTFY_CACHE_DURATION
+            value: "12h"
+        ports:
+          - name: http
+            containerPort: 80
+        resources:
+          # Strict Resource Allocation Budget (plan.md Section 4.2)
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 200m
+            memory: 128Mi
+        volumeMounts:
+          - name: ntfy-cache
+            mountPath: /var/cache/ntfy
+        livenessProbe:
+          httpGet:
+            path: /v1/health
+            port: 80
+          initialDelaySeconds: 10
+          periodSeconds: 15
+          timeoutSeconds: 3
+        readinessProbe:
+          httpGet:
+            path: /v1/health
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 2
+      volumes:
+        - name: ntfy-cache
+          emptyDir: {}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ntfy-service
+  namespace: delivery
+  labels:
+    app.kubernetes.io/name: ntfy-service
+    app.kubernetes.io/part-of: delivery-platform
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80
+  selector:
+    app: ntfy
