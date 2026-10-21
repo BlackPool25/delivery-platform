@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: martin-service
+  namespace: delivery-prod
+  labels:
+    app: martin-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: martin-service
+  template:
+    metadata:
+      labels:
+        app: martin-service
+    spec:
+      containers:
+      - name: martin
+        image: ghcr.io/maplibre/martin:latest
+        imagePullPolicy: IfNotPresent
+        args:
+        - "--route-prefix"
+        - "/tiles"
+        - "/data/tiles/city.pmtiles"
+        ports:
+        - containerPort: 3000
+          name: http
+        livenessProbe:
+          httpGet:
+            path: /tiles/health
+            port: 3000
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /tiles/health
+            port: 3000
+          initialDelaySeconds: 3
+          periodSeconds: 5
+        volumeMounts:
+        - name: tiles-volume
+          mountPath: /data/tiles
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 256Mi
+      volumes:
+      - name: tiles-volume
+        hostPath:
+          path: /home/shreyas/projects/delivery-platform/data/tiles
+          type: Directory
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: martin-service
+  namespace: delivery-prod
+  labels:
+    app: martin-service
+spec:
+  type: ClusterIP
+  ports:
+  - port: 3000
+    targetPort: 3000
+    name: http
+  selector:
+    app: martin-service

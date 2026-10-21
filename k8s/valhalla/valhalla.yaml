@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: valhalla-service
+  namespace: delivery-prod
+  labels:
+    app: valhalla-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: valhalla-service
+  template:
+    metadata:
+      labels:
+        app: valhalla-service
+    spec:
+      containers:
+      - name: valhalla
+        image: delivery/valhalla-service:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8002
+          name: http
+        livenessProbe:
+          httpGet:
+            path: /status
+            port: 8002
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /status
+            port: 8002
+          initialDelaySeconds: 3
+          periodSeconds: 5
+        resources:
+          requests:
+            cpu: 500m
+            memory: 1024Mi
+          limits:
+            cpu: 2000m
+            memory: 2048Mi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: valhalla-service
+  namespace: delivery-prod
+  labels:
+    app: valhalla-service
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8002
+    targetPort: 8002
+    name: http
+  selector:
+    app: valhalla-service
