@@ -692,6 +692,78 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#7-phase-6-load-testing-cellular-network-impairment-chaos-runbook" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Phase 6: Load Testing, Cellular Network Impairment &amp; Chaos Runbook
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. Phase 6: Load Testing, Cellular Network Impairment &amp; Chaos Runbook">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71-right-sized-workstation-load-testing-k6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.1 Right-Sized Workstation Load Testing (k6)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#72-high-frequency-grpc-telemetry-benchmarking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.2 High-Frequency gRPC Telemetry Benchmarking
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#73-fast-synthetic-test-data-teardown-100ms-target" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.3 Fast Synthetic Test Data Teardown (&lt; 100ms Target)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#74-toxiproxy-cellular-network-impairments-4g-lte-3g-simulation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.4 Toxiproxy Cellular Network Impairments (4G LTE / 3G Simulation)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#75-chaos-engineering-matrix-verification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.5 Chaos Engineering Matrix Verification
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -876,6 +948,78 @@
     <span class="md-ellipsis">
       
         6.3 End-to-End Digital Twin Simulation Run
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-phase-6-load-testing-cellular-network-impairment-chaos-runbook" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Phase 6: Load Testing, Cellular Network Impairment &amp; Chaos Runbook
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. Phase 6: Load Testing, Cellular Network Impairment &amp; Chaos Runbook">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71-right-sized-workstation-load-testing-k6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.1 Right-Sized Workstation Load Testing (k6)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#72-high-frequency-grpc-telemetry-benchmarking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.2 High-Frequency gRPC Telemetry Benchmarking
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#73-fast-synthetic-test-data-teardown-100ms-target" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.3 Fast Synthetic Test Data Teardown (&lt; 100ms Target)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#74-toxiproxy-cellular-network-impairments-4g-lte-3g-simulation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.4 Toxiproxy Cellular Network Impairments (4G LTE / 3G Simulation)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#75-chaos-engineering-matrix-verification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.5 Chaos Engineering Matrix Verification
       
     </span>
   </a>
@@ -1115,6 +1259,47 @@ This reclaims disk blocks instantly on the underlying filesystem with <strong>ze
 </span><span id="__span-10-37"><a id="__codelineno-10-37" name="__codelineno-10-37" href="#__codelineno-10-37"></a><span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
 </span><span id="__span-10-38"><a id="__codelineno-10-38" name="__codelineno-10-38" href="#__codelineno-10-38"></a><span class="w">  </span>-d<span class="w"> </span><span class="s1">'{"verificationPin": "482915"}'</span>
 </span></code></pre></div>
+<hr />
+<h2 id="7-phase-6-load-testing-cellular-network-impairment-chaos-runbook">7. Phase 6: Load Testing, Cellular Network Impairment &amp; Chaos Runbook</h2>
+<h3 id="71-right-sized-workstation-load-testing-k6">7.1 Right-Sized Workstation Load Testing (k6)</h3>
+<p>The platform includes a workstation-calibrated benchmark executing 1,000–2,500 simulated Virtual Users (VUs) and 25–50 virtual couriers across a 70/30 Pareto clustering model (70% within 4 San Francisco dining hubs, 30% suburban).</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="c1"># Execute workstation benchmark via k6</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>k6<span class="w"> </span>run<span class="w"> </span>--vus<span class="w"> </span><span class="m">50</span><span class="w"> </span>--duration<span class="w"> </span>20s<span class="w"> </span>load-tests/workstation-benchmark.js
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="c1"># Target SLO Gates Enforced:</span>
+</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="c1"># - Order Placement: p(95) &lt; 150ms, p(99) &lt; 300ms</span>
+</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="c1"># - Telemetry Ingestion: p(95) &lt; 30ms, p(99) &lt; 60ms</span>
+</span><span id="__span-11-7"><a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="c1"># - Vector Map Tiles: p(95) &lt; 25ms</span>
+</span><span id="__span-11-8"><a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a><span class="c1"># - Global 5xx Error Rate: &lt; 0.1% (99.9% success)</span>
+</span></code></pre></div>
+<h3 id="72-high-frequency-grpc-telemetry-benchmarking">7.2 High-Frequency gRPC Telemetry Benchmarking</h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="c1"># Execute native protobuf gRPC benchmark on port 9090</span>
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>k6<span class="w"> </span>run<span class="w"> </span>--vus<span class="w"> </span><span class="m">10</span><span class="w"> </span>--duration<span class="w"> </span>10s<span class="w"> </span>load-tests/grpc-benchmark.js
+</span></code></pre></div>
+<h3 id="73-fast-synthetic-test-data-teardown-100ms-target">7.3 Fast Synthetic Test Data Teardown (&lt; 100ms Target)</h3>
+<p>To reset staging tables and Redis caches without incurring Write-Ahead Log (WAL) bloat:
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="c1"># Execute fast teardown script</span>
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>bash<span class="w"> </span>load-tests/fast-teardown.sh<span class="w"> </span><span class="m">8085</span>
+</span></code></pre></div></p>
+<h3 id="74-toxiproxy-cellular-network-impairments-4g-lte-3g-simulation">7.4 Toxiproxy Cellular Network Impairments (4G LTE / 3G Simulation)</h3>
+<p>Inject cellular jitter, packet drops, and bandwidth caps to verify courier reconnection:
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="c1"># Apply Toxiproxy cellular impairment configuration</span>
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>toxiproxy-cli<span class="w"> </span>create<span class="w"> </span>courier_lte<span class="w"> </span>-l<span class="w"> </span><span class="m">0</span>.0.0.0:8443<span class="w"> </span>-u<span class="w"> </span>tracking-service:8080
+</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>toxiproxy-cli<span class="w"> </span>toxic<span class="w"> </span>add<span class="w"> </span>-t<span class="w"> </span>latency<span class="w"> </span>-a<span class="w"> </span><span class="nv">latency</span><span class="o">=</span><span class="m">80</span><span class="w"> </span>-a<span class="w"> </span><span class="nv">jitter</span><span class="o">=</span><span class="m">40</span><span class="w"> </span>courier_lte
+</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>toxiproxy-cli<span class="w"> </span>toxic<span class="w"> </span>add<span class="w"> </span>-t<span class="w"> </span>bandwidth<span class="w"> </span>-a<span class="w"> </span><span class="nv">rate</span><span class="o">=</span><span class="m">1024</span><span class="w"> </span>courier_lte<span class="w"> </span><span class="c1"># 1MB/s throttle</span>
+</span><span id="__span-14-5"><a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>toxiproxy-cli<span class="w"> </span>toxic<span class="w"> </span>add<span class="w"> </span>-t<span class="w"> </span>drop<span class="w"> </span>-a<span class="w"> </span><span class="nv">percentage</span><span class="o">=</span><span class="m">0</span>.02<span class="w"> </span>courier_lte<span class="w"> </span><span class="c1"># 2% drop rate</span>
+</span></code></pre></div></p>
+<h3 id="75-chaos-engineering-matrix-verification">7.5 Chaos Engineering Matrix Verification</h3>
+<p>Execute automated pod kill and connection recovery scenarios:
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="c1"># Run the automated Chaos suite</span>
+</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>bash<span class="w"> </span>scripts/run-chaos-suite.sh
+</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>
+</span><span id="__span-15-4"><a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="c1"># Scenarios Covered:</span>
+</span><span id="__span-15-5"><a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a><span class="c1"># 1. Redis Pod Kill during telemetry stream -&gt; Reconnection backoff &lt; 5s</span>
+</span><span id="__span-15-6"><a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a><span class="c1"># 2. GPU Transcode-Worker Kill -&gt; RabbitMQ task re-queue</span>
+</span><span id="__span-15-7"><a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a><span class="c1"># 3. Time Chaos / Clock Skew (200ms) -&gt; Server-authoritative timestamps prevent lease corruption</span>
+</span><span id="__span-15-8"><a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a><span class="c1"># 4. Connection Pool Saturation -&gt; HikariCP fails fast within 2000ms with HTTP 503</span>
+</span></code></pre></div></p>
 
 
 

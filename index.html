@@ -902,6 +902,19 @@ flowchart TD
 </span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="c1"># Run isolated PostGIS testcontainer verification</span>
 </span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>./mvnw<span class="w"> </span>-pl<span class="w"> </span>services/catalog-service<span class="w"> </span><span class="nb">test</span><span class="w"> </span>-Dtest<span class="o">=</span>CatalogSpatialVerificationTest
 </span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>./mvnw<span class="w"> </span>-pl<span class="w"> </span>services/order-service<span class="w"> </span><span class="nb">test</span><span class="w"> </span>-Dtest<span class="o">=</span>OrderOutboxPartitionVerificationTest
+</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>
+</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="c1"># Phase 6: Run ArchUnit Fitness Rules &amp; Concurrency Race Tests</span>
+</span><span id="__span-3-13"><a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>./mvnw<span class="w"> </span>-pl<span class="w"> </span>services/order-service<span class="w"> </span><span class="nb">test</span><span class="w"> </span>-Dtest<span class="o">=</span>OrderArchitectureFitnessTest,OrderConcurrencyRaceConditionTest
+</span><span id="__span-3-14"><a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>./mvnw<span class="w"> </span>-pl<span class="w"> </span>services/catalog-service<span class="w"> </span><span class="nb">test</span><span class="w"> </span>-Dtest<span class="o">=</span>CatalogArchitectureFitnessTest
+</span><span id="__span-3-15"><a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a>./mvnw<span class="w"> </span>-pl<span class="w"> </span>services/tracking-service<span class="w"> </span><span class="nb">test</span><span class="w"> </span>-Dtest<span class="o">=</span>CourierTelemetryGrpcVerificationTest
+</span><span id="__span-3-16"><a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a>
+</span><span id="__span-3-17"><a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a><span class="c1"># Phase 6: Run k6 Workstation Load &amp; gRPC Benchmarks</span>
+</span><span id="__span-3-18"><a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a>k6<span class="w"> </span>run<span class="w"> </span>--vus<span class="w"> </span><span class="m">50</span><span class="w"> </span>--duration<span class="w"> </span>15s<span class="w"> </span>load-tests/workstation-benchmark.js
+</span><span id="__span-3-19"><a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a>k6<span class="w"> </span>run<span class="w"> </span>--vus<span class="w"> </span><span class="m">10</span><span class="w"> </span>--duration<span class="w"> </span>10s<span class="w"> </span>load-tests/grpc-benchmark.js
+</span><span id="__span-3-20"><a id="__codelineno-3-20" name="__codelineno-3-20" href="#__codelineno-3-20"></a>
+</span><span id="__span-3-21"><a id="__codelineno-3-21" name="__codelineno-3-21" href="#__codelineno-3-21"></a><span class="c1"># Phase 6: Run Fast Synthetic Teardown &amp; Chaos Engineering Suite</span>
+</span><span id="__span-3-22"><a id="__codelineno-3-22" name="__codelineno-3-22" href="#__codelineno-3-22"></a>bash<span class="w"> </span>load-tests/fast-teardown.sh<span class="w"> </span><span class="m">8085</span>
+</span><span id="__span-3-23"><a id="__codelineno-3-23" name="__codelineno-3-23" href="#__codelineno-3-23"></a>bash<span class="w"> </span>scripts/run-chaos-suite.sh
 </span></code></pre></div>
 
 
