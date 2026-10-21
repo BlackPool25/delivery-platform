@@ -792,9 +792,18 @@ flowchart TD
     end
 
     subgraph CNI ["Internal Kubernetes CNI Network (ClusterIP &amp; CoreDNS)"]
+        subgraph MapsAndTwin ["Maps, Routing &amp; Digital Twin (Phase 5)"]
+            Martin["🗺️ martin-service:3000&lt;br/&gt;• PMTiles Vector Tile Server&lt;br/&gt;• Offline /tiles/city/{z}/{x}/{y}"]
+            Valhalla["🚗 valhalla-service:8002&lt;br/&gt;• OSM Dynamic Routing Engine&lt;br/&gt;• Turn-by-Turn Maneuvers &amp; ETAs"]
+            Simulator["🛵 courier-simulator:8080&lt;br/&gt;• 20 Virtual Couriers Online&lt;br/&gt;• Auto-Claim &amp; 3s Telemetry Emitter"]
+            UI["🖥️ digital-twin-ui:80&lt;br/&gt;• MapLibre GL Offline Map Client&lt;br/&gt;• Live WebSocket Marker &amp; PIN Handshake"]
+        end
+
         subgraph CoreServices ["Core Domain Microservices (Java 21 / Project Loom Virtual Threads)"]
+            Auth["🔐 auth-service:8080&lt;br/&gt;• Passwordless Phone OTP&lt;br/&gt;• Asymmetric Ed25519 JWT Signing&lt;br/&gt;• In-Memory JWKS Discovery"]
             Catalog["🍽️ catalog-service:8080&lt;br/&gt;• PostGIS 4326 Spheroid ST_Covers&lt;br/&gt;• Uber H3 Res 8 Coarse Binning&lt;br/&gt;• Menu &amp; Reel Catalog"]
             Order["📦 order-service:8080&lt;br/&gt;• Idempotent Checkout&lt;br/&gt;• Building/Floor/Room Dropoff&lt;br/&gt;• Daily Outbox Partitioning"]
+            Tracking["📡 tracking-service:8080&lt;br/&gt;• Kinematic Anti-Spoofing&lt;br/&gt;• Redis Geospatial Sharding&lt;br/&gt;• /ws/tracking Gateway"]
         end
 
         subgraph LocalBoundary ["Sovereign Boundary Mocks (Zero Runtime SaaS)"]
@@ -805,15 +814,29 @@ flowchart TD
 
         subgraph Datastores ["Internal Datastores &amp; Replication"]
             Postgres[("🗄️ PostgreSQL 16 (PostGIS 3.4)&lt;br/&gt;• Hardened CDC: max_slot_wal_keep_size=-1&lt;br/&gt;• wal_level=logical&lt;br/&gt;• GiST Spatial R-Tree Indexes")]
+            Redis[("⚡ Redis 7 (In-Memory Telemetry)&lt;br/&gt;• GeoSpatial Clustered Sharding&lt;br/&gt;• Telemetry Breadcrumb TTLs")]
         end
     end
 
     Client --&gt;|HTTP / WebSockets on Port 8080| Ingress
+    Ingress --&gt;|/| UI
+    Ingress --&gt;|/tiles/*| Martin
+    Ingress --&gt;|/routing/*| Valhalla
+    Ingress --&gt;|/api/v1/simulator/*| Simulator
+    Ingress --&gt;|/api/v1/tracking/* &amp; /ws/tracking/*| Tracking
+    Ingress --&gt;|/api/v1/auth/* &amp; /.well-known/*| Auth
     Ingress --&gt;|/api/v1/catalog/*| Catalog
     Ingress --&gt;|/api/v1/orders/*| Order
     Ingress --&gt;|/api/v1/payments/*| Payment
     Ingress --&gt;|/api/v1/sms/* &amp; /admin/sms-inbox| SMS
     Ingress --&gt;|/push/*| Push
+
+    Simulator --&gt;|Claim lease &amp; out-for-delivery| Order
+    Simulator --&gt;|Query road waypoints| Valhalla
+    Simulator --&gt;|Emit 3s GPS telemetry| Tracking
+    Tracking --&gt;|State &amp; breadcrumbs| Redis
+    UI --&gt;|Render offline vector tiles| Martin
+    UI --&gt;|Stream live courier markers| Tracking
 
     Catalog --&gt;|ST_Covers queries| Postgres
     Order --&gt;|Orders &amp; Partitioned Outbox| Postgres

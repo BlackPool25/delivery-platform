@@ -642,6 +642,56 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#6-phase-5-operations-verification-gate-runbook" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Phase 5 Operations &amp; Verification Gate Runbook
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Phase 5 Operations &amp; Verification Gate Runbook">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61-starting-phase-5-infrastructure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 Starting Phase 5 Infrastructure
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62-health-status-verification-gates" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2 Health &amp; Status Verification Gates
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#63-end-to-end-digital-twin-simulation-run" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3 End-to-End Digital Twin Simulation Run
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -787,6 +837,56 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#6-phase-5-operations-verification-gate-runbook" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Phase 5 Operations &amp; Verification Gate Runbook
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Phase 5 Operations &amp; Verification Gate Runbook">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61-starting-phase-5-infrastructure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 Starting Phase 5 Infrastructure
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62-health-status-verification-gates" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2 Health &amp; Status Verification Gates
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#63-end-to-end-digital-twin-simulation-run" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3 End-to-End Digital Twin Simulation Run
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -928,10 +1028,92 @@ This reclaims disk blocks instantly on the underlying filesystem with <strong>ze
 </span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>kubectl<span class="w"> </span>get<span class="w"> </span>pods<span class="w"> </span>-n<span class="w"> </span>ingress-nginx
 </span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>
 </span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="c1"># Check Ingress Routing Resource</span>
-</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>kubectl<span class="w"> </span>describe<span class="w"> </span>ingress<span class="w"> </span>delivery-ingress<span class="w"> </span>-n<span class="w"> </span>delivery
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>kubectl<span class="w"> </span>describe<span class="w"> </span>ingress<span class="w"> </span>delivery-platform-ingress<span class="w"> </span>-n<span class="w"> </span>delivery-prod
 </span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>
 </span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="c1"># Verify Port 8080 Binding on Host</span>
 </span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>ss<span class="w"> </span>-tulpn<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="m">8080</span>
+</span></code></pre></div>
+<hr />
+<h2 id="6-phase-5-operations-verification-gate-runbook">6. Phase 5 Operations &amp; Verification Gate Runbook</h2>
+<h3 id="61-starting-phase-5-infrastructure">6.1 Starting Phase 5 Infrastructure</h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="c1"># Option A: Local Docker Compose Ingress Environment</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>docker<span class="w"> </span>compose<span class="w"> </span>-f<span class="w"> </span>docker/docker-compose-phase5.yaml<span class="w"> </span>up<span class="w"> </span>-d
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="c1"># Option B: Kubernetes Deployment Bundle</span>
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>k8s/postgres/postgres.yaml
+</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>k8s/redis/redis.yaml
+</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>k8s/rabbitmq/rabbitmq.yaml
+</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>k8s/minio/minio.yaml
+</span><span id="__span-8-9"><a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>k8s/ntfy/ntfy.yaml
+</span><span id="__span-8-10"><a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>k8s/local-payment-service/local-payment-service.yaml
+</span><span id="__span-8-11"><a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>k8s/local-sms-gateway/local-sms-gateway.yaml
+</span><span id="__span-8-12"><a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>k8s/auth-service/auth-service.yaml
+</span><span id="__span-8-13"><a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>k8s/catalog-service/catalog-service.yaml
+</span><span id="__span-8-14"><a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>k8s/order-service/order-service.yaml
+</span><span id="__span-8-15"><a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>k8s/tracking-service/tracking-service.yaml
+</span><span id="__span-8-16"><a id="__codelineno-8-16" name="__codelineno-8-16" href="#__codelineno-8-16"></a>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>k8s/media-service/media-service.yaml
+</span><span id="__span-8-17"><a id="__codelineno-8-17" name="__codelineno-8-17" href="#__codelineno-8-17"></a>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>k8s/transcoder/transcode-worker.yaml
+</span><span id="__span-8-18"><a id="__codelineno-8-18" name="__codelineno-8-18" href="#__codelineno-8-18"></a>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>k8s/martin/martin.yaml
+</span><span id="__span-8-19"><a id="__codelineno-8-19" name="__codelineno-8-19" href="#__codelineno-8-19"></a>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>k8s/valhalla/valhalla.yaml
+</span><span id="__span-8-20"><a id="__codelineno-8-20" name="__codelineno-8-20" href="#__codelineno-8-20"></a>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>k8s/courier-simulator/courier-simulator.yaml
+</span><span id="__span-8-21"><a id="__codelineno-8-21" name="__codelineno-8-21" href="#__codelineno-8-21"></a>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>k8s/digital-twin-ui/digital-twin-ui.yaml
+</span><span id="__span-8-22"><a id="__codelineno-8-22" name="__codelineno-8-22" href="#__codelineno-8-22"></a>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>k8s/ingress/delivery-ingress-phase5.yaml
+</span></code></pre></div>
+<h3 id="62-health-status-verification-gates">6.2 Health &amp; Status Verification Gates</h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="c1"># 1. Verify Ingress Gateway &amp; Order Service</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>curl<span class="w"> </span>-s<span class="w"> </span>http://localhost:8080/api/v1/orders/actuator/health
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="c1"># 2. Verify Martin Offline Vector Tile Server</span>
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>curl<span class="w"> </span>-i<span class="w"> </span>http://localhost:8080/tiles/city/0/0/0
+</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="c1"># Expected: HTTP 200 OK with Content-Type: application/x-protobuf</span>
+</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>
+</span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="c1"># 3. Verify Valhalla Dynamic Routing Engine</span>
+</span><span id="__span-9-9"><a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>curl<span class="w"> </span>-s<span class="w"> </span>http://localhost:8080/routing/status
+</span><span id="__span-9-10"><a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="c1"># Expected: {"status": "ready", ...}</span>
+</span><span id="__span-9-11"><a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a>
+</span><span id="__span-9-12"><a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a><span class="c1"># 4. Verify Virtual Courier Simulator Runner</span>
+</span><span id="__span-9-13"><a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a>curl<span class="w"> </span>-s<span class="w"> </span>http://localhost:8080/api/v1/simulator/status
+</span><span id="__span-9-14"><a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a><span class="c1"># Expected: {"status": "ONLINE", "totalCouriers": 20, ...}</span>
+</span></code></pre></div>
+<h3 id="63-end-to-end-digital-twin-simulation-run">6.3 End-to-End Digital Twin Simulation Run</h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="c1"># 1. Open the MapLibre GL Digital Twin UI in your browser:</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="c1"># http://localhost:8080/</span>
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="c1"># 2. Or execute via CLI:</span>
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="c1"># Place Order</span>
+</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="nv">ORDER_ID</span><span class="o">=</span><span class="k">$(</span>curl<span class="w"> </span>-s<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:8080/api/v1/orders<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-10-8"><a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="w">  </span>-d<span class="w"> </span><span class="s1">'{</span>
+</span><span id="__span-10-9"><a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a><span class="s1">    "userId": "00000000-0000-0000-0000-000000000001",</span>
+</span><span id="__span-10-10"><a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a><span class="s1">    "restaurantId": "a1111111-1111-1111-1111-111111111111",</span>
+</span><span id="__span-10-11"><a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a><span class="s1">    "dropoffLatitude": 37.7650,</span>
+</span><span id="__span-10-12"><a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a><span class="s1">    "dropoffLongitude": -122.4150,</span>
+</span><span id="__span-10-13"><a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a><span class="s1">    "dropoffBuilding": "450 Valencia St",</span>
+</span><span id="__span-10-14"><a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a><span class="s1">    "dropoffFloor": "3",</span>
+</span><span id="__span-10-15"><a id="__codelineno-10-15" name="__codelineno-10-15" href="#__codelineno-10-15"></a><span class="s1">    "dropoffRoom": "3B",</span>
+</span><span id="__span-10-16"><a id="__codelineno-10-16" name="__codelineno-10-16" href="#__codelineno-10-16"></a><span class="s1">    "verificationPin": "482915",</span>
+</span><span id="__span-10-17"><a id="__codelineno-10-17" name="__codelineno-10-17" href="#__codelineno-10-17"></a><span class="s1">    "items": [{"dishId": "b1111111-1111-1111-1111-111111111101", "dishName": "Birria Tacos", "unitPrice": 14.50, "quantity": 2}]</span>
+</span><span id="__span-10-18"><a id="__codelineno-10-18" name="__codelineno-10-18" href="#__codelineno-10-18"></a><span class="s1">  }'</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span>.id<span class="k">)</span>
+</span><span id="__span-10-19"><a id="__codelineno-10-19" name="__codelineno-10-19" href="#__codelineno-10-19"></a>
+</span><span id="__span-10-20"><a id="__codelineno-10-20" name="__codelineno-10-20" href="#__codelineno-10-20"></a><span class="c1"># Execute Ledger Hold</span>
+</span><span id="__span-10-21"><a id="__codelineno-10-21" name="__codelineno-10-21" href="#__codelineno-10-21"></a>curl<span class="w"> </span>-s<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">"http://localhost:8080/api/v1/orders/</span><span class="si">${</span><span class="nv">ORDER_ID</span><span class="si">}</span><span class="s2">/pay"</span>
+</span><span id="__span-10-22"><a id="__codelineno-10-22" name="__codelineno-10-22" href="#__codelineno-10-22"></a>
+</span><span id="__span-10-23"><a id="__codelineno-10-23" name="__codelineno-10-23" href="#__codelineno-10-23"></a><span class="c1"># Kitchen Accept &amp; Prepare</span>
+</span><span id="__span-10-24"><a id="__codelineno-10-24" name="__codelineno-10-24" href="#__codelineno-10-24"></a>curl<span class="w"> </span>-s<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">"http://localhost:8080/api/v1/orders/</span><span class="si">${</span><span class="nv">ORDER_ID</span><span class="si">}</span><span class="s2">/accept"</span>
+</span><span id="__span-10-25"><a id="__codelineno-10-25" name="__codelineno-10-25" href="#__codelineno-10-25"></a>curl<span class="w"> </span>-s<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">"http://localhost:8080/api/v1/orders/</span><span class="si">${</span><span class="nv">ORDER_ID</span><span class="si">}</span><span class="s2">/prepare"</span>
+</span><span id="__span-10-26"><a id="__codelineno-10-26" name="__codelineno-10-26" href="#__codelineno-10-26"></a>curl<span class="w"> </span>-s<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">"http://localhost:8080/api/v1/orders/</span><span class="si">${</span><span class="nv">ORDER_ID</span><span class="si">}</span><span class="s2">/ready"</span>
+</span><span id="__span-10-27"><a id="__codelineno-10-27" name="__codelineno-10-27" href="#__codelineno-10-27"></a>
+</span><span id="__span-10-28"><a id="__codelineno-10-28" name="__codelineno-10-28" href="#__codelineno-10-28"></a><span class="c1"># Offer Targeted 30-Second Lease</span>
+</span><span id="__span-10-29"><a id="__codelineno-10-29" name="__codelineno-10-29" href="#__codelineno-10-29"></a>curl<span class="w"> </span>-s<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">"http://localhost:8080/api/v1/orders/</span><span class="si">${</span><span class="nv">ORDER_ID</span><span class="si">}</span><span class="s2">/lease"</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-10-30"><a id="__codelineno-10-30" name="__codelineno-10-30" href="#__codelineno-10-30"></a><span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span>-d<span class="w"> </span><span class="s1">'{"leaseSeconds": 30}'</span>
+</span><span id="__span-10-31"><a id="__codelineno-10-31" name="__codelineno-10-31" href="#__codelineno-10-31"></a>
+</span><span id="__span-10-32"><a id="__codelineno-10-32" name="__codelineno-10-32" href="#__codelineno-10-32"></a><span class="c1"># Trigger Courier Simulator Dispatch</span>
+</span><span id="__span-10-33"><a id="__codelineno-10-33" name="__codelineno-10-33" href="#__codelineno-10-33"></a>curl<span class="w"> </span>-s<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">"http://localhost:8080/api/v1/simulator/dispatch/</span><span class="si">${</span><span class="nv">ORDER_ID</span><span class="si">}</span><span class="s2">"</span>
+</span><span id="__span-10-34"><a id="__codelineno-10-34" name="__codelineno-10-34" href="#__codelineno-10-34"></a>
+</span><span id="__span-10-35"><a id="__codelineno-10-35" name="__codelineno-10-35" href="#__codelineno-10-35"></a><span class="c1"># Complete Doorstep PIN Handshake Verification</span>
+</span><span id="__span-10-36"><a id="__codelineno-10-36" name="__codelineno-10-36" href="#__codelineno-10-36"></a>curl<span class="w"> </span>-s<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">"http://localhost:8080/api/v1/orders/</span><span class="si">${</span><span class="nv">ORDER_ID</span><span class="si">}</span><span class="s2">/deliver"</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-10-37"><a id="__codelineno-10-37" name="__codelineno-10-37" href="#__codelineno-10-37"></a><span class="w">  </span>-H<span class="w"> </span><span class="s2">"Content-Type: application/json"</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-10-38"><a id="__codelineno-10-38" name="__codelineno-10-38" href="#__codelineno-10-38"></a><span class="w">  </span>-d<span class="w"> </span><span class="s1">'{"verificationPin": "482915"}'</span>
 </span></code></pre></div>
 
 
