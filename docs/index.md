@@ -167,4 +167,17 @@ cd delivery-platform
 # Run isolated PostGIS testcontainer verification
 ./mvnw -pl services/catalog-service test -Dtest=CatalogSpatialVerificationTest
 ./mvnw -pl services/order-service test -Dtest=OrderOutboxPartitionVerificationTest
+
+# Phase 6: Run ArchUnit Fitness Rules & Concurrency Race Tests
+./mvnw -pl services/order-service test -Dtest=OrderArchitectureFitnessTest,OrderConcurrencyRaceConditionTest
+./mvnw -pl services/catalog-service test -Dtest=CatalogArchitectureFitnessTest
+./mvnw -pl services/tracking-service test -Dtest=CourierTelemetryGrpcVerificationTest
+
+# Phase 6: Run k6 Workstation Load & gRPC Benchmarks
+k6 run --vus 50 --duration 15s load-tests/workstation-benchmark.js
+k6 run --vus 10 --duration 10s load-tests/grpc-benchmark.js
+
+# Phase 6: Run Fast Synthetic Teardown & Chaos Engineering Suite
+bash load-tests/fast-teardown.sh 8085
+bash scripts/run-chaos-suite.sh
 ```

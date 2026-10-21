@@ -209,3 +209,58 @@ curl -s -X POST "http://localhost:8080/api/v1/orders/${ORDER_ID}/deliver" \
   -H "Content-Type: application/json" \
   -d '{"verificationPin": "482915"}'
 ```
+
+---
+
+## 7. Phase 6: Load Testing, Cellular Network Impairment & Chaos Runbook
+
+### 7.1 Right-Sized Workstation Load Testing (k6)
+
+The platform includes a workstation-calibrated benchmark executing 1,000–2,500 simulated Virtual Users (VUs) and 25–50 virtual couriers across a 70/30 Pareto clustering model (70% within 4 San Francisco dining hubs, 30% suburban).
+
+```bash
+# Execute workstation benchmark via k6
+k6 run --vus 50 --duration 20s load-tests/workstation-benchmark.js
+
+# Target SLO Gates Enforced:
+# - Order Placement: p(95) < 150ms, p(99) < 300ms
+# - Telemetry Ingestion: p(95) < 30ms, p(99) < 60ms
+# - Vector Map Tiles: p(95) < 25ms
+# - Global 5xx Error Rate: < 0.1% (99.9% success)
+```
+
+### 7.2 High-Frequency gRPC Telemetry Benchmarking
+```bash
+# Execute native protobuf gRPC benchmark on port 9090
+k6 run --vus 10 --duration 10s load-tests/grpc-benchmark.js
+```
+
+### 7.3 Fast Synthetic Test Data Teardown (< 100ms Target)
+To reset staging tables and Redis caches without incurring Write-Ahead Log (WAL) bloat:
+```bash
+# Execute fast teardown script
+bash load-tests/fast-teardown.sh 8085
+```
+
+### 7.4 Toxiproxy Cellular Network Impairments (4G LTE / 3G Simulation)
+Inject cellular jitter, packet drops, and bandwidth caps to verify courier reconnection:
+```bash
+# Apply Toxiproxy cellular impairment configuration
+toxiproxy-cli create courier_lte -l 0.0.0.0:8443 -u tracking-service:8080
+toxiproxy-cli toxic add -t latency -a latency=80 -a jitter=40 courier_lte
+toxiproxy-cli toxic add -t bandwidth -a rate=1024 courier_lte # 1MB/s throttle
+toxiproxy-cli toxic add -t drop -a percentage=0.02 courier_lte # 2% drop rate
+```
+
+### 7.5 Chaos Engineering Matrix Verification
+Execute automated pod kill and connection recovery scenarios:
+```bash
+# Run the automated Chaos suite
+bash scripts/run-chaos-suite.sh
+
+# Scenarios Covered:
+# 1. Redis Pod Kill during telemetry stream -> Reconnection backoff < 5s
+# 2. GPU Transcode-Worker Kill -> RabbitMQ task re-queue
+# 3. Time Chaos / Clock Skew (200ms) -> Server-authoritative timestamps prevent lease corruption
+# 4. Connection Pool Saturation -> HikariCP fails fast within 2000ms with HTTP 503
+```

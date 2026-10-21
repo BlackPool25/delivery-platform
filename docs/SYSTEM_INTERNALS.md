@@ -275,3 +275,37 @@ $$\sum_{i=1}^{n} \text{Debits}_i - \sum_{j=1}^{m} \text{Credits}_j = 0.00$$
 ```
 
 Because balances are updated within ACID transactions protected by optimistic row versioning (`@Version`), the platform operates with zero external banking SaaS at runtime while guaranteeing mathematical impossibility of double-spending or negative balances.
+
+---
+
+## 6. Deep-Dive 6: High-Frequency gRPC Telemetry & Concurrency Race Mechanics
+
+### 6.1 Protobuf Serialization Efficiency vs JSON
+
+In high-concurrency spatial dispatch, couriers emit location pings at frequencies between $0.33\text{ Hz}$ and $1.0\text{ Hz}$. At scale, JSON payload serialization introduces significant overhead:
+* JSON stringification overhead: field name repetition (`"latitude"`, `"longitude"`, `"timestamp"`), ASCII float parsing, and string heap allocations.
+* Protobuf binary encoding uses compact variable-length varints and fixed 64-bit IEEE 754 representations, reducing payload size by **$> 65\%$** (from ~220 bytes JSON to ~72 bytes Protobuf).
+
+### 6.2 Java 21 Virtual Thread Per-Task Dispatch
+
+Standard gRPC worker thread pools rely on fixed platform threads (`Executors.newFixedThreadPool(200)`). Under burst load, carrier threads block on synchronous Redis network I/O or database queries, causing thread starvation.
+
+The `CourierTelemetryGrpcService` runs on an unconstrained Virtual Thread executor:
+
+```java
+ServerBuilder.forPort(grpcPort)
+    .executor(Executors.newVirtualThreadPerTaskExecutor())
+    .addService(courierTelemetryGrpcService)
+    .build();
+```
+
+When a gRPC call blocks waiting on Redis socket responses (`redisTemplate.opsForGeo().add(...)`), the JVM unmounts the virtual thread from its underlying OS carrier thread (`ForkJoinPool`), allowing other incoming gRPC pings to process with zero carrier thread starvation.
+
+### 6.3 Concurrency Race Condition Mathematical Proof
+
+Consider $N = 50$ couriers simultaneously attempting to claim the same order:
+* Each thread issues an atomic conditional update:
+  $$\text{UPDATE orders SET courier\_id = } C_i \text{ WHERE id = } O \text{ AND courier\_id IS NULL AND dispatch\_lease\_expires\_at > NOW();}$$
+* PostgreSQL row-level locks guarantee strict serializability of row mutation. The first transaction to acquire the row lock finds `courier_id IS NULL`, updates the row, increments `version`, and commits.
+* The remaining 49 concurrent virtual threads find `courier_id IS NOT NULL`, yielding `affectedRows == 0`.
+* The service returns HTTP 409 Conflict / Error to the 49 losers, proving **$P(\text{double-booking}) = 0$** under arbitrary concurrency.

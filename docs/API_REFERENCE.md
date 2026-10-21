@@ -16,6 +16,7 @@
 - [Valhalla Road Routing Engine (`/routing/*`)](#8-valhalla-dynamic-road-routing-engine)
 - [Virtual Courier Simulator (`/api/v1/simulator/*`)](#9-virtual-courier-simulator)
 - [Digital Twin MapLibre GL Web UI (`/`)](#10-digital-twin-maplibre-gl-web-client)
+- [High-Frequency gRPC Telemetry Service (`localhost:9090`)](#11-high-frequency-grpc-telemetry-service)
 
 ---
 
@@ -375,3 +376,72 @@ Standalone test worker provisioning 20 virtual couriers in San Francisco dining 
 * Renders offline vector tiles from `/tiles/city/{z}/{x}/{y}`.
 * Connects to `/ws/tracking` to render live courier markers with heading rotation and breadcrumbs.
 * Provides interactive order journey tracker from `PLACED` to `DELIVERED & SETTLED` via PIN handshake.
+
+---
+
+## 11. High-Frequency gRPC Telemetry Service
+
+The tracking engine exposes a high-concurrency binary gRPC interface on dedicated port `9090` backed by Java 21 Virtual Threads (`Executors.newVirtualThreadPerTaskExecutor()`).
+
+* **Proto Definition:** `services/tracking-service/src/main/proto/telemetry.proto`
+* **Service:** `com.delivery.tracking.grpc.CourierTelemetryService`
+* **Port:** `9090` (Mapped to host port 9090 on the local cluster)
+
+### 11.1 RPC IngestTelemetry (Unary)
+Submits a single high-frequency kinematic GPS coordinate ping. Evaluates against the $\le 120\text{ km/h}$ anti-spoofing velocity filter and persists to regional Redis keys.
+
+* **Method:** `CourierTelemetryService/IngestTelemetry`
+* **Request Payload:**
+```protobuf
+message TelemetryPing {
+  string courier_id = 1;
+  double latitude = 2;
+  double longitude = 3;
+  int64 timestamp_epoch_ms = 4;
+  double speed_kmh = 5;
+  double heading = 6;
+  double accuracy = 7;
+}
+```
+* **Response Payload:**
+```protobuf
+message TelemetryAck {
+  string courier_id = 1;
+  bool accepted = 2;
+  string status = 3;             // "ACCEPTED", "FLAGGED_SPOOFING", "OUT_OF_BOUNDS"
+  double calculated_speed_kmh = 4;
+  string message = 5;
+}
+```
+
+### 11.2 RPC StreamTelemetry (Client-Streaming)
+Allows high-throughput persistent multiplexed streams of kinematic telemetry points from active drivers.
+
+* **Method:** `CourierTelemetryService/StreamTelemetry`
+* **Input Stream:** `stream TelemetryPing`
+* **Output Response:** `TelemetrySummary` (returns total points received, accepted count, and flagged count).
+
+### 11.3 RPC GetCourierLocation (Unary)
+Low-latency read endpoint querying courier position directly from in-memory Redis state.
+
+* **Method:** `CourierTelemetryService/GetCourierLocation`
+* **Request:** `{ "courier_id": "00000000-0000-4000-8000-000000000001" }`
+* **Response:**
+```protobuf
+message CourierLocationResponse {
+  string courier_id = 1;
+  double latitude = 2;
+  double longitude = 3;
+  int64 timestamp_epoch_ms = 4;
+  double speed_kmh = 5;
+  double heading = 6;
+  bool is_online = 7;
+  bool found = 8;
+}
+```
+
+### 11.4 Benchmarking with k6
+```bash
+# Execute native gRPC load test using k6
+k6 run --vus 10 --duration 15s load-tests/grpc-benchmark.js
+```

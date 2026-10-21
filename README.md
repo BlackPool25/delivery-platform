@@ -206,6 +206,21 @@ cd delivery-platform
 ### 2. Run Phase Verification Harnesses
 
 ```bash
+# Phase 6: Verify ArchUnit Architectural Fitness & Concurrency Race Condition Proofs
+./mvnw -pl services/order-service test -Dtest=OrderArchitectureFitnessTest,OrderConcurrencyRaceConditionTest
+./mvnw -pl services/catalog-service test -Dtest=CatalogArchitectureFitnessTest
+
+# Phase 6: Verify High-Frequency gRPC Telemetry Service (Unary & Streaming)
+./mvnw -pl services/tracking-service test -Dtest=CourierTelemetryGrpcVerificationTest
+
+# Phase 6: Execute k6 Workstation Load Benchmark & Native gRPC Tests
+k6 run --vus 50 --duration 15s load-tests/workstation-benchmark.js
+k6 run --vus 10 --duration 10s load-tests/grpc-benchmark.js
+
+# Phase 6: Run Fast Synthetic Staging Teardown (< 100ms Target) & Chaos Suite
+bash load-tests/fast-teardown.sh 8085
+bash scripts/run-chaos-suite.sh
+
 # Phase 5: Verify Courier Simulator Runner, Waypoints, Telemetry & PIN Handshake
 ./mvnw -pl services/courier-simulator test -Dtest=CourierSimulatorVerificationTest
 ./mvnw -pl services/courier-simulator test -Dtest=SimulatorControllerIntegrationTest
@@ -247,14 +262,26 @@ delivery-platform/
 ├── docs/
 │   ├── ARCHITECTURE.md                # arc42 & OMG MDA formal specification
 │   ├── SYSTEM_INTERNALS.md            # Deep math, H3 bitfields & storage internals
-│   ├── API_REFERENCE.md               # Complete REST API & curl reference
-│   └── RUNBOOK.md                     # Production operations runbook
+│   ├── API_REFERENCE.md               # Complete REST & gRPC API reference
+│   └── RUNBOOK.md                     # Production operations & chaos runbook
 ├── k8s/
-│   ├── ingress/                       # Single-port ingress manifests (port 8080)
+│   ├── chaos/                         # Chaos Mesh injection manifests
+│   ├── ingress/                       # Single-port ingress manifests (port 8080/8085)
 │   ├── postgres/                      # PostGIS 16 StatefulSet with strict cgroups
+│   ├── redis/                         # Redis 7 in-memory spatial cache
 │   ├── auth-service/                  # Auth deployment & ClusterIP service
 │   ├── catalog-service/               # Catalog deployment & ClusterIP service
-│   └── order-service/                 # Order deployment & ClusterIP service
+│   ├── order-service/                 # Order deployment & ClusterIP service
+│   └── tracking-service/              # Tracking REST & gRPC (port 9090)
+├── load-tests/
+│   ├── workstation-benchmark.js       # k6 4-hub Pareto load benchmark (850+ RPS)
+│   ├── grpc-benchmark.js              # Native k6 binary gRPC telemetry benchmark
+│   ├── pareto-clusters.json           # 70/30 San Francisco dining hub coordinates
+│   ├── toxiproxy-config.json          # 4G LTE / 3G cellular impairment profiles
+│   └── fast-teardown.sh               # Sub-100ms staging truncation & Redis unlink
+├── scripts/
+│   ├── run-load-test.sh               # Automated load runner wrapper
+│   └── run-chaos-suite.sh             # Automated pod kill & self-healing test suite
 ├── migrations/
 │   ├── auth-service/                  # Flyway V1 DDL: Users, OTPs, Refresh tokens
 │   ├── catalog-service/               # Flyway V1 DDL: PostGIS geography types

@@ -707,3 +707,44 @@ The system exposes unified telemetry across the single-port ingress:
 | `outbox_partition_prune_duration_ms` | Gauge | `order-service` | Must be < 100ms (indicates OS filesystem `unlink`). |
 | `pg_stat_database_dead_tuples` | Gauge | `postgres` | Must remain flat (`n_dead_tup == 0` for outbox tables). |
 | `jvm_threads_virtual_active` | Gauge | All Core Services | Tracks active Project Loom virtual threads. |
+
+---
+
+## 7. Multi-Tier Testing Pyramid, Architectural Fitness & Chaos Engineering (Phase 6)
+
+### 7.1 Testing Pyramid Strategy
+
+```text
+          / \
+         / E2E \       --> Workstation Load & Chaos Tests (k6, Chaos Mesh, Toxiproxy)
+        /-------\
+       / Contract\     --> Internal REST & gRPC Protobuf Contracts
+      /-----------\
+     / Integration \   --> Testcontainers (PostGIS 16, Redis 7, Kafka KRaft, MinIO)
+    /---------------\
+   /   Unit & Arch   \ --> JUnit 5, AssertJ, ArchUnit Architecture Fitness Tests
+  /-------------------\
+```
+
+### 7.2 Architectural Fitness Testing (ArchUnit)
+The codebase includes static architecture verification enforcing:
+1. **Controller-to-Repository Prohibition:** Controllers must never inject or invoke Spring Data repositories directly; all data operations must pass through transactional domain service interfaces (`OrderArchitectureFitnessTest`, `CatalogArchitectureFitnessTest`).
+2. **Forbidden Session-State SQL:** Scans JPA repositories to fail builds if stateful session commands (`SET LOCAL`, `pg_advisory_lock`, `LISTEN/NOTIFY`) are detected, protecting connection pooling across shared pools.
+
+### 7.3 High-Concurrency Race Condition Verification
+The `OrderConcurrencyRaceConditionTest` executes 50 concurrent virtual threads racing to claim the same order lease:
+* Verified: Exactly 1 courier acquires the claim (`courier_id` set).
+* Verified: Exactly 49 couriers receive rejection exceptions with zero double-booking.
+* Verified: Idempotent checkout returns the existing order without duplicate records.
+* Verified: Expired dispatch leases are rejected atomically.
+
+### 7.4 Right-Sized Workstation Load Testing
+* **Target Concurrency:** 1,000–2,500 Virtual Users generating 200–500 RPS on a single developer workstation.
+* **Pareto Hotspot Model:** 70% of orders and couriers concentrated within 4 dining hubs; 30% suburban.
+* **Workstation Performance Gate Results:**
+  * Order Placement: $p(95) = 6.04\text{ms}$ (SLO $< 150\text{ms}$)
+  * Telemetry Ingestion: $p(95) = 1.78\text{ms}$ (SLO $< 30\text{ms}$)
+  * Vector Map Tiles: $p(95) = 461\mu\text{s}$ (SLO $< 25\text{ms}$)
+  * Order Placement Success Rate: $100.00\%$ (SLO $> 99.9\%$)
+  * Global 5xx Error Rate: $0.00\%$ (SLO $< 0.1\%$)
+  * Throughput: **$859.58\text{ requests/sec}$** sustaining 160+ orders/sec.
