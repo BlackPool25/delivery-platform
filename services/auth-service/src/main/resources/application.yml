@@ -30,7 +30,10 @@ spring:
         format_sql: false
   flyway:
     enabled: true
-    baseline-on-migrate: true
+    baseline-on-migrate: false
+    validate-on-migrate: false
+    repair-on-migrate: true
+    table: flyway_schema_history_auth
     locations: classpath:db/migration
 
 auth:

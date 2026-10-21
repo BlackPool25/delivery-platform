@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: local-payment-service
-  namespace: delivery
+  namespace: delivery-prod
   labels:
     app.kubernetes.io/name: local-payment-service
     app.kubernetes.io/part-of: delivery-platform
@@ -36,11 +36,25 @@ spec:
           - name: SPRING_PROFILES_ACTIVE
             value: "local"
           - name: SPRING_DATASOURCE_URL
-            value: "jdbc:postgresql://postgres.delivery.svc:5432/delivery_db"
+            value: "jdbc:postgresql://postgres.delivery-prod.svc.cluster.local:5432/delivery_db"
+          - name: SPRING_FLYWAY_BASELINE_ON_MIGRATE
+            value: "true"
+          - name: SPRING_FLYWAY_REPAIR_ON_MIGRATE
+            value: "true"
+          - name: SPRING_FLYWAY_VALIDATE_ON_MIGRATE
+            value: "false"
+          - name: SPRING_FLYWAY_TABLE
+            value: "flyway_schema_history_payment"
           - name: SPRING_DATASOURCE_USERNAME
-            value: "postgres"
+            valueFrom:
+              secretKeyRef:
+                name: postgres-secret
+                key: POSTGRES_USER
           - name: SPRING_DATASOURCE_PASSWORD
-            value: "postgres"
+            valueFrom:
+              secretKeyRef:
+                name: postgres-secret
+                key: POSTGRES_PASSWORD
         ports:
           - name: http
             containerPort: 8080
@@ -74,7 +88,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: local-payment-service
-  namespace: delivery
+  namespace: delivery-prod
   labels:
     app.kubernetes.io/name: local-payment-service
     app.kubernetes.io/part-of: delivery-platform

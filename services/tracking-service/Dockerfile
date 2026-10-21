@@ -42,7 +42,7 @@ COPY --from=builder --chown=spring:spring /workspace/extracted/spring-boot-loade
 COPY --from=builder --chown=spring:spring /workspace/extracted/snapshot-dependencies/ ./
 COPY --from=builder --chown=spring:spring /workspace/extracted/application/ ./
 
-EXPOSE 8080
+EXPOSE 8080 9090
 
 ENV JAVA_TOOL_OPTIONS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -XX:+ExitOnOutOfMemoryError"
 

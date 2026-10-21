@@ -24,20 +24,20 @@ if ! command -v kubectl >/dev/null 2>&1 || ! kubectl cluster-info >/dev/null 2>&
 fi
 
 echo "--> Scenario 1: Redis Pod Kill during active telemetry ingest"
-if kubectl get pod -n "${NAMESPACE}" -l app=redis >/dev/null 2>&1; then
+if kubectl get pod -n "${NAMESPACE}" -l app.kubernetes.io/name=redis >/dev/null 2>&1; then
     echo "    Triggering pod kill on Redis..."
-    kubectl delete pod -n "${NAMESPACE}" -l app=redis --wait=false
+    kubectl delete pod -n "${NAMESPACE}" -l app.kubernetes.io/name=redis --wait=false
     echo "    Waiting for Redis pod resurrection (< 5s target)..."
-    kubectl wait --for=condition=ready pod -n "${NAMESPACE}" -l app=redis --timeout=15s
+    kubectl wait --for=condition=ready pod -n "${NAMESPACE}" -l app.kubernetes.io/name=redis --timeout=15s
     echo "    ✔ Redis recovered successfully."
 fi
 
 echo "--> Scenario 2: GPU Worker Pod Death during video transcode"
-if kubectl get pod -n "${NAMESPACE}" -l app=transcode-worker >/dev/null 2>&1; then
+if kubectl get pod -n "${NAMESPACE}" -l app.kubernetes.io/name=transcode-worker >/dev/null 2>&1; then
     echo "    Triggering pod kill on transcode-worker..."
-    kubectl delete pod -n "${NAMESPACE}" -l app=transcode-worker --wait=false
+    kubectl delete pod -n "${NAMESPACE}" -l app.kubernetes.io/name=transcode-worker --wait=false
     echo "    Waiting for transcode-worker resurrection..."
-    kubectl wait --for=condition=ready pod -n "${NAMESPACE}" -l app=transcode-worker --timeout=20s
+    kubectl wait --for=condition=ready pod -n "${NAMESPACE}" -l app.kubernetes.io/name=transcode-worker --timeout=20s
     echo "    ✔ Transcode-worker recovered; RabbitMQ re-queues unacknowledged transcode."
 fi
 

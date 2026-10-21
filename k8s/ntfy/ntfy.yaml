@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: ntfy
-  namespace: delivery
+  namespace: delivery-prod
   labels:
     app.kubernetes.io/name: ntfy
     app.kubernetes.io/part-of: delivery-platform
@@ -26,7 +26,7 @@ spec:
         command: ["ntfy", "serve"]
         env:
           - name: NTFY_BASE_URL
-            value: "http://localhost:8080/push"
+            value: "http://localhost:8080"
           - name: NTFY_BEHIND_PROXY
             value: "true"
           - name: NTFY_LISTEN_HTTP
@@ -72,7 +72,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: ntfy-service
-  namespace: delivery
+  namespace: delivery-prod
   labels:
     app.kubernetes.io/name: ntfy-service
     app.kubernetes.io/part-of: delivery-platform

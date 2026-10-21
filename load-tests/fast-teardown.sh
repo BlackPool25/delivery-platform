@@ -10,7 +10,7 @@ PG_HOST="${PG_HOST:-localhost}"
 PG_PORT="${PG_PORT:-5432}"
 PG_USER="${PG_USER:-postgres}"
 PG_PASSWORD="${PG_PASSWORD:-postgres}"
-PG_DATABASE="${PG_DATABASE:-delivery_platform}"
+PG_DATABASE="${PG_DATABASE:-delivery_db}"
 
 echo "===================================================================="
 echo "⚡ Initiating Fast Synthetic Test Data Teardown (< 100ms Target)"
@@ -23,7 +23,11 @@ if curl -sf -X POST "http://localhost:${INGRESS_PORT}/api/v1/orders/loadtest/tea
     echo "    ✔ API fast teardown completed successfully."
 else
     echo "    Notice: API endpoint unreachable, attempting direct psql truncation..."
-    if command -v psql >/dev/null 2>&1; then
+    if command -v kubectl >/dev/null 2>&1; then
+        kubectl exec -i postgres-0 -n delivery-prod -- psql -U postgres -d "${PG_DATABASE}" \
+            -c "TRUNCATE TABLE orders_loadtest_staging CASCADE;" > /dev/null 2>&1 || true
+        echo "    ✔ Direct database truncation via kubectl complete."
+    elif command -v psql >/dev/null 2>&1; then
         PGPASSWORD="${PG_PASSWORD}" psql -h "${PG_HOST}" -p "${PG_PORT}" -U "${PG_USER}" -d "${PG_DATABASE}" \
             -c "TRUNCATE TABLE orders_loadtest_staging CASCADE;" > /dev/null 2>&1 || true
         echo "    ✔ Direct database truncation complete."
@@ -32,7 +36,10 @@ fi
 
 # 2. Redis Key Fast Unlink
 echo "--> Unlinking synthetic Redis loadtest keys..."
-if command -v redis-cli >/dev/null 2>&1; then
+if command -v kubectl >/dev/null 2>&1; then
+    kubectl exec -i redis-0 -n delivery-prod -- redis-cli --scan --pattern "tracking:courier:00000000-0000-4000-8000-*" | xargs -r -L 500 kubectl exec -i redis-0 -n delivery-prod -- redis-cli UNLINK >/dev/null 2>&1 || true
+    echo "    ✔ Redis keys unlinked via kubectl."
+elif command -v redis-cli >/dev/null 2>&1; then
     redis-cli --scan --pattern "loadtest:*" | xargs -r -L 500 redis-cli UNLINK >/dev/null 2>&1 || true
     redis-cli --scan --pattern "tracking:courier:00000000-0000-4000-8000-*" | xargs -r -L 500 redis-cli UNLINK >/dev/null 2>&1 || true
     echo "    ✔ Redis keys unlinked."

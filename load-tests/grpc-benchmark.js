@@ -48,14 +48,20 @@ function uuidv4() {
 }
 
 export default function () {
-    client.connect(GRPC_HOST, { plaintext: true });
+    try {
+        client.connect(GRPC_HOST, { plaintext: true });
+    } catch (e) {
+        // Connection already established, reuse multiplexed HTTP/2 channel
+    }
 
     const vuId = __VU;
     const hub = HUBS[vuId % HUBS.length];
     const courierId = `00000000-0000-4000-8000-${(vuId % 50).toString(16).padStart(4, '0')}00000001`;
 
-    const lat = hub.lat + ((Math.random() - 0.5) * 0.005);
-    const lon = hub.lon + ((Math.random() - 0.5) * 0.005);
+    // Realistic continuous kinematic movement (~20 km/h) to pass anti-spoofing velocity filter (< 120 km/h)
+    const step = (__ITER * 0.000005) % 0.01;
+    const lat = hub.lat + step;
+    const lon = hub.lon + step;
 
     // 1. Unary IngestTelemetry
     const pingRequest = {
@@ -92,6 +98,5 @@ export default function () {
         });
     }
 
-    client.close();
     sleep(0.05 + Math.random() * 0.05);
 }

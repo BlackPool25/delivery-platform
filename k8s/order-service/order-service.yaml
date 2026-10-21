@@ -1,3 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: order-service-config
+  namespace: delivery-prod
+data:
+  db_url: "jdbc:postgresql://postgres.delivery-prod.svc.cluster.local:5432/delivery_db"
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -78,33 +86,30 @@ spec:
           env:
             - name: SPRING_PROFILES_ACTIVE
               value: "prod"
+            - name: SPRING_FLYWAY_BASELINE_ON_MIGRATE
+              value: "false"
+            - name: SPRING_FLYWAY_REPAIR_ON_MIGRATE
+              value: "true"
+            - name: SPRING_FLYWAY_VALIDATE_ON_MIGRATE
+              value: "false"
+            - name: SPRING_FLYWAY_TABLE
+              value: "flyway_schema_history_order"
             - name: SPRING_THREADS_VIRTUAL_ENABLED
               value: "true"
-            - name: DB_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: order-service-config
-                  key: db_url
-            - name: DB_USERNAME
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:postgresql://postgres.delivery-prod.svc.cluster.local:5432/delivery_db"
+            - name: SPRING_DATASOURCE_USERNAME
               valueFrom:
                 secretKeyRef:
-                  name: order-service-secret
-                  key: db_username
-            - name: DB_PASSWORD
+                  name: postgres-secret
+                  key: POSTGRES_USER
+            - name: SPRING_DATASOURCE_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: order-service-secret
-                  key: db_password
-            - name: KAFKA_BOOTSTRAP_SERVERS
-              valueFrom:
-                configMapKeyRef:
-                  name: cluster-shared-config
-                  key: kafka_servers
-            - name: REDIS_HOST
-              valueFrom:
-                configMapKeyRef:
-                  name: cluster-shared-config
-                  key: redis_host
+                  name: postgres-secret
+                  key: POSTGRES_PASSWORD
+            - name: PAYMENT_SERVICE_URL
+              value: "http://local-payment-service.delivery-prod.svc.cluster.local:8080"
 
           # Writable ephemeral volume for JVM temp files
           volumeMounts:
@@ -115,7 +120,7 @@ spec:
           startupProbe:
             httpGet:
               path: /actuator/health/liveness
-              port: 8081
+              port: 8080
             failureThreshold: 30
             periodSeconds: 5
             timeoutSeconds: 3
@@ -123,7 +128,7 @@ spec:
           livenessProbe:
             httpGet:
               path: /actuator/health/liveness
-              port: 8081
+              port: 8080
             periodSeconds: 10
             timeoutSeconds: 3
             failureThreshold: 3
@@ -131,7 +136,7 @@ spec:
           readinessProbe:
             httpGet:
               path: /actuator/health/readiness
-              port: 8081
+              port: 8080
             periodSeconds: 5
             timeoutSeconds: 2
             successThreshold: 1

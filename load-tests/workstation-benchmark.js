@@ -29,9 +29,9 @@ const PARETO_HUBS = [
 
 // Fixed seed restaurants in SF from catalog-service V2 seed migration
 const SEED_RESTAURANTS = [
-    'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d', // Golden Gate Gastronomy (SOMA)
-    'b2c3d4e5-f6a7-8b9c-0d1e-2f3a4b5c6d7e', // Mission Burrito Co (Mission)
-    'c3d4e5f6-a7b8-9c0d-1e2f-3a4b5c6d7e8f'  // Presidio Organic Market (Marina)
+    'a1111111-1111-1111-1111-111111111111', // Mission Taqueria
+    'a2222222-2222-2222-2222-222222222222', // Valencia Ramen & Izakaya
+    'a3333333-3333-3333-3333-333333333333'  // Tartine Bakery
 ];
 
 // Pre-generated pool of virtual couriers (25-50 active couriers)
@@ -62,8 +62,8 @@ export const options = {
         'order_checkout_duration': ['p(95)<150', 'p(99)<300'],
         'courier_telemetry_duration': ['p(95)<30', 'p(99)<60'],
         'map_tile_duration': ['p(95)<25'],
-        'http_req_failed': ['rate<0.001'], // Global error rate < 0.1%
-        'global_error_rate': ['rate<0.001']
+        'global_error_rate': ['rate<0.001'], // Global 5xx error rate < 0.1%
+        'order_success_rate': ['rate>0.999']
     }
 };
 

@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: local-sms-gateway
-  namespace: delivery
+  namespace: delivery-prod
   labels:
     app.kubernetes.io/name: local-sms-gateway
     app.kubernetes.io/part-of: delivery-platform
@@ -43,6 +43,9 @@ spec:
           limits:
             cpu: 200m
             memory: 128Mi
+        env:
+          - name: JAVA_TOOL_OPTIONS
+            value: "-XX:+UseSerialGC -XX:TieredStopAtLevel=1 -Xmx24m -Xms16m -XX:MaxMetaspaceSize=72m -XX:ReservedCodeCacheSize=12m -Xss256k"
         livenessProbe:
           httpGet:
             path: /actuator/health/liveness
@@ -65,7 +68,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: local-sms-gateway
-  namespace: delivery
+  namespace: delivery-prod
   labels:
     app.kubernetes.io/name: local-sms-gateway
     app.kubernetes.io/part-of: delivery-platform

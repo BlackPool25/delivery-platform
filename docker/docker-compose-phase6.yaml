@@ -146,7 +146,9 @@ services:
   auth-service:
     build:
       context: ..
-      dockerfile: services/auth-service/Dockerfile
+      dockerfile: docker/Dockerfile.fast
+      args:
+        JAR_FILE: services/auth-service/target/auth-service-1.0.0-SNAPSHOT.jar
     container_name: auth-service
     depends_on:
       postgres:
@@ -170,7 +172,9 @@ services:
   local-payment-service:
     build:
       context: ..
-      dockerfile: services/local-payment-service/Dockerfile
+      dockerfile: docker/Dockerfile.fast
+      args:
+        JAR_FILE: services/local-payment-service/target/local-payment-service-1.0.0-SNAPSHOT.jar
     container_name: local-payment-service
     depends_on:
       postgres:
@@ -191,7 +195,9 @@ services:
   local-sms-gateway:
     build:
       context: ..
-      dockerfile: services/local-sms-gateway/Dockerfile
+      dockerfile: docker/Dockerfile.fast
+      args:
+        JAR_FILE: services/local-sms-gateway/target/local-sms-gateway-1.0.0-SNAPSHOT.jar
     container_name: local-sms-gateway
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
@@ -204,7 +210,9 @@ services:
   catalog-service:
     build:
       context: ..
-      dockerfile: services/catalog-service/Dockerfile
+      dockerfile: docker/Dockerfile.fast
+      args:
+        JAR_FILE: services/catalog-service/target/catalog-service-1.0.0-SNAPSHOT.jar
     container_name: catalog-service
     depends_on:
       postgres:
@@ -225,7 +233,9 @@ services:
   order-service:
     build:
       context: ..
-      dockerfile: services/order-service/Dockerfile
+      dockerfile: docker/Dockerfile.fast
+      args:
+        JAR_FILE: services/order-service/target/order-service-1.0.0-SNAPSHOT.jar
     container_name: order-service
     depends_on:
       postgres:
@@ -249,7 +259,9 @@ services:
   tracking-service:
     build:
       context: ..
-      dockerfile: services/tracking-service/Dockerfile
+      dockerfile: docker/Dockerfile.fast
+      args:
+        JAR_FILE: services/tracking-service/target/tracking-service-1.0.0-SNAPSHOT.jar
     container_name: tracking-service
     depends_on:
       redis:
@@ -273,7 +285,9 @@ services:
   media-service:
     build:
       context: ..
-      dockerfile: services/media-service/Dockerfile
+      dockerfile: docker/Dockerfile.fast
+      args:
+        JAR_FILE: services/media-service/target/media-service-1.0.0-SNAPSHOT.jar
     container_name: media-service
     depends_on:
       rabbitmq:
@@ -299,7 +313,9 @@ services:
   transcode-worker:
     build:
       context: ..
-      dockerfile: services/transcode-worker/Dockerfile
+      dockerfile: docker/Dockerfile.fast
+      args:
+        JAR_FILE: services/transcode-worker/target/transcode-worker-1.0.0-SNAPSHOT.jar
     container_name: transcode-worker
     depends_on:
       rabbitmq:
@@ -336,7 +352,9 @@ services:
   courier-simulator:
     build:
       context: ..
-      dockerfile: services/courier-simulator/Dockerfile
+      dockerfile: docker/Dockerfile.fast
+      args:
+        JAR_FILE: services/courier-simulator/target/courier-simulator-1.0.0-SNAPSHOT.jar
     container_name: courier-simulator
     depends_on:
       order-service:

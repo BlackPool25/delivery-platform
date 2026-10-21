@@ -95,8 +95,7 @@ spec:
         - name: postgres
           image: postgis/postgis:16-3.4-alpine
           imagePullPolicy: IfNotPresent
-          command:
-            - "postgres"
+          args:
             - "-c"
             - "config_file=/etc/postgresql/postgresql.conf"
           ports:
