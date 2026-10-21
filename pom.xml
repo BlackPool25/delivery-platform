@@ -32,6 +32,7 @@
     <modules>
         <module>services/local-payment-service</module>
         <module>services/local-sms-gateway</module>
+        <module>services/catalog-service</module>
     </modules>
 
     <dependencyManagement>
