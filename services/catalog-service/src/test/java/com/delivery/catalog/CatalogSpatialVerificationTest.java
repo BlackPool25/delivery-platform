@@ -51,6 +51,7 @@ public class CatalogSpatialVerificationTest {
     private JdbcTemplate jdbcTemplate;
 
     private static UUID restaurantId;
+    private static UUID autoH3RestaurantId;
 
     // Delivery zone polygon in San Francisco (EPSG:4326 Geography):
     // Rectangular geodesic bounding box covering longitude [-122.4300, -122.4000] and latitude [37.7600, 37.7900]
@@ -179,5 +180,99 @@ public class CatalogSpatialVerificationTest {
                 exteriorLng, exteriorLat, restaurantId
         );
         assertThat(sqlCovered).isFalse();
+    }
+
+    @Test
+    @Order(5)
+    @DisplayName("Verification Gate Step 5: Automatic Uber H3 Resolution 8 Spatial Index Computation")
+    void testAutomaticH3Res8Computation() {
+        CreateRestaurantRequest reqWithoutH3 = new CreateRestaurantRequest(
+                "Auto H3 Bistro",
+                "French bistro auto-indexed with Uber H3",
+                "+14155554321",
+                37.7749,
+                -122.4194,
+                SF_DELIVERY_ZONE_WKT,
+                null, // null H3 index -> should auto-compute
+                "san-francisco",
+                20
+        );
+
+        RestaurantResponse created = catalogService.createRestaurant(reqWithoutH3);
+        assertThat(created.h3Res8()).isNotNull();
+        assertThat(created.h3Res8()).isGreaterThan(0L);
+        autoH3RestaurantId = created.id();
+
+        // Verify H3 index resolution is 8 using H3 library directly
+        com.uber.h3core.H3Core h3;
+        try {
+            h3 = com.uber.h3core.H3Core.newInstance();
+            int res = h3.getResolution(created.h3Res8());
+            assertThat(res).isEqualTo(8);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    @Order(6)
+    @DisplayName("Verification Gate Step 6: Two-Stage Coarse-to-Fine Spatial Candidate Resolution")
+    void testTwoStageCandidateResolution() {
+        // Point in Mission District: 37.7749, -122.4194 (inside SF_DELIVERY_ZONE_WKT)
+        double queryLat = 37.7749;
+        double queryLng = -122.4194;
+
+        com.delivery.catalog.dto.TwoStageSearchResponse response =
+                catalogService.searchTwoStageCandidates(queryLat, queryLng, 1);
+
+        assertThat(response).isNotNull();
+        assertThat(response.centerH3Cell()).isGreaterThan(0L);
+        assertThat(response.centerH3Hex()).isNotBlank();
+        assertThat(response.kRing()).isEqualTo(1);
+        assertThat(response.coarseCandidatesFound()).isGreaterThanOrEqualTo(1);
+        assertThat(response.fineMatchesCovered()).isGreaterThanOrEqualTo(1);
+        assertThat(response.restaurants())
+                .extracting(RestaurantResponse::id)
+                .contains(autoH3RestaurantId);
+    }
+
+    @Test
+    @Order(7)
+    @DisplayName("Verification Gate Step 7: Menu Management & 86-ing Dish Availability")
+    void testMenuManagementAndEightySixingDishes() {
+        // 1. Add dish
+        com.delivery.catalog.dto.CreateDishRequest dishReq = new com.delivery.catalog.dto.CreateDishRequest(
+                "Carne Asada Super Burrito",
+                "Grilled steak, guacamole, beans, cheese, and salsa",
+                new java.math.BigDecimal("14.50"),
+                "MEXICAN"
+        );
+        com.delivery.catalog.dto.DishResponse dish = catalogService.addDish(restaurantId, dishReq);
+        assertThat(dish.id()).isNotNull();
+        assertThat(dish.name()).isEqualTo("Carne Asada Super Burrito");
+        assertThat(dish.isAvailable()).isTrue();
+
+        // 2. 86 the dish (kitchen ran out of steak)
+        com.delivery.catalog.dto.DishResponse eightySixed = catalogService.eightySixDish(dish.id());
+        assertThat(eightySixed.isAvailable()).isFalse();
+
+        // 3. Verify availableOnly filter excludes the 86'd dish
+        List<com.delivery.catalog.dto.DishResponse> availableDishes =
+                catalogService.getDishesForRestaurant(restaurantId, true);
+        assertThat(availableDishes)
+                .extracting(com.delivery.catalog.dto.DishResponse::id)
+                .doesNotContain(dish.id());
+
+        // 4. Verify all dishes includes the 86'd dish
+        List<com.delivery.catalog.dto.DishResponse> allDishes =
+                catalogService.getDishesForRestaurant(restaurantId, false);
+        assertThat(allDishes)
+                .extracting(com.delivery.catalog.dto.DishResponse::id)
+                .contains(dish.id());
+
+        // 5. Un-86 (restore availability)
+        com.delivery.catalog.dto.DishResponse restored =
+                catalogService.updateDishAvailability(dish.id(), true);
+        assertThat(restored.isAvailable()).isTrue();
     }
 }

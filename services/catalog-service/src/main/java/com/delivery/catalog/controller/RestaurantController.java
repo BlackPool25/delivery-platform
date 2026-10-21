@@ -60,4 +60,12 @@ public class RestaurantController {
     public ResponseEntity<List<RestaurantResponse>> findByH3(@PathVariable Long h3Cell) {
         return ResponseEntity.ok(catalogService.findByH3Cell(h3Cell));
     }
+
+    @GetMapping("/coarse-search")
+    public ResponseEntity<com.delivery.catalog.dto.TwoStageSearchResponse> coarseSearch(
+            @RequestParam("lat") double lat,
+            @RequestParam("lng") double lng,
+            @RequestParam(value = "kRing", defaultValue = "1") int kRing) {
+        return ResponseEntity.ok(catalogService.searchTwoStageCandidates(lat, lng, kRing));
+    }
 }

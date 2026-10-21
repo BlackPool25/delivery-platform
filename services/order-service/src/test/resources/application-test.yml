@@ -25,6 +25,15 @@ outbox:
     prune-cron: "-"
     retention-days: 7
 
+payment:
+  service:
+    url: http://localhost:8082
+
+order:
+  saga:
+    interval-ms: 60000
+    payment-timeout-seconds: 90
+
 logging:
   level:
     org.flywaydb: INFO

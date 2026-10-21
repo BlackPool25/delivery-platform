@@ -32,6 +32,7 @@
     <modules>
         <module>services/local-payment-service</module>
         <module>services/local-sms-gateway</module>
+        <module>services/auth-service</module>
         <module>services/catalog-service</module>
         <module>services/order-service</module>
     </modules>

@@ -15,6 +15,8 @@ public interface RestaurantRepository extends JpaRepository<Restaurant, UUID> {
 
     List<Restaurant> findByH3Res8AndIsActiveTrue(Long h3Res8);
 
+    List<Restaurant> findByH3Res8InAndIsActiveTrue(List<Long> h3Cells);
+
     @Query(value = """
         SELECT r.* FROM restaurants r
         WHERE r.id = :restaurantId

@@ -60,8 +60,9 @@ flowchart TD
 
     subgraph CNI ["Internal Kubernetes CNI Network (ClusterIP & CoreDNS)"]
         subgraph CoreServices ["Core Domain Microservices (Java 21 / Project Loom Virtual Threads)"]
-            Catalog["🍽️ catalog-service:8080<br/>• PostGIS 4326 Spheroid ST_Covers<br/>• Uber H3 Res 8 Coarse Binning<br/>• Menu & Reel Catalog"]
-            Order["📦 order-service:8080<br/>• Idempotent Checkout<br/>• Building/Floor/Room Dropoff<br/>• Daily Outbox Partitioning"]
+            Auth["🔐 auth-service:8080<br/>• Passwordless Phone OTP<br/>• Asymmetric Ed25519 JWT Signing<br/>• In-Memory JWKS Discovery"]
+            Catalog["🍽️ catalog-service:8080<br/>• PostGIS 4326 Spheroid ST_Covers<br/>• Uber H3 Res 8 Coarse Binning<br/>• Menu & 86-ing Kitchen Catalog"]
+            Order["📦 order-service:8080<br/>• Idempotent Checkout<br/>• 1-to-1 Dispatch Lease State Machine<br/>• Saga Timeout Daemon & Daily Outbox"]
         end
 
         subgraph LocalBoundary ["Sovereign Boundary Mocks (Zero Runtime SaaS)"]
@@ -76,12 +77,15 @@ flowchart TD
     end
 
     Client -->|HTTP / WebSockets on Port 8080| Ingress
+    Ingress -->|/api/v1/auth/* & /.well-known/*| Auth
     Ingress -->|/api/v1/catalog/*| Catalog
     Ingress -->|/api/v1/orders/*| Order
     Ingress -->|/api/v1/payments/*| Payment
     Ingress -->|/api/v1/sms/* & /admin/sms-inbox| SMS
     Ingress -->|/push/*| Push
 
+    Auth -->|User credentials & OTP storage| Postgres
+    Auth -.->|OTP dispatch API| SMS
     Catalog -->|ST_Covers queries| Postgres
     Order -->|Orders & Partitioned Outbox| Postgres
     Payment -->|Ledger accounts & Journal entries| Postgres
@@ -96,7 +100,7 @@ flowchart TD
 
     class Client clientNode;
     class Ingress gatewayNode;
-    class Catalog,Order serviceNode;
+    class Auth,Catalog,Order serviceNode;
     class Payment,SMS,Push boundaryNode;
     class Postgres storeNode;
 ```
@@ -146,6 +150,7 @@ Every container declares strict CPU and memory bounds matching the resource budg
 | Container / Pod Name | CPU Request | CPU Limit | Memory Request | Memory Limit | QoS Class |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | `ingress-nginx-controller` | `100m` | `500m` | `128Mi` | `256Mi` | Burstable |
+| `auth-service` | `200m` | `1000m` | `384Mi` | `768Mi` | Burstable |
 | `catalog-service` | `200m` | `1000m` | `384Mi` | `768Mi` | Burstable |
 | `order-service` | `300m` | `1500m` | `512Mi` | `1024Mi` | Burstable |
 | `local-payment-service` | `100m` | `500m` | `256Mi` | `384Mi` | Burstable |
@@ -167,13 +172,19 @@ cd delivery-platform
 ./mvnw clean test
 ```
 
-### 2. Run Local Verification Harness
+### 2. Run Phase Verification Harnesses
 
 ```bash
-# Verify spatial coverage calculations on PostGIS
+# Phase 3: Verify Passwordless Phone OTP & Asymmetric Ed25519 JWKS
+./mvnw -pl services/auth-service test -Dtest=AuthVerificationGateTest
+
+# Phase 3: Verify Two-Stage H3 Res 8 + PostGIS Geodesic ST_Covers & 86-ing Menu
 ./mvnw -pl services/catalog-service test -Dtest=CatalogSpatialVerificationTest
 
-# Verify daily outbox partitioning and DROP TABLE mechanics
+# Phase 3: Verify Order FSM, 1-to-1 Dispatch Claim Race, & Saga Timeout Coordinator
+./mvnw -pl services/order-service test -Dtest=OrderLifecycleAndSagaVerificationTest
+
+# Phase 2: Verify Daily Range Outbox Partitioning & Zero-WAL DROP TABLE Pruning
 ./mvnw -pl services/order-service test -Dtest=OrderOutboxPartitionVerificationTest
 ```
 
@@ -190,7 +201,8 @@ delivery-platform/
 ├── docker/
 │   ├── postgresql.conf                # Hardened CDC & WAL Postgres config
 │   ├── Dockerfile.service             # Multi-stage Java 21 containerfile
-│   └── docker-compose-phase2.yaml     # Phase 2 local container composition
+│   ├── docker-compose-phase2.yaml     # Phase 2 local container composition
+│   └── docker-compose-phase3.yaml     # Phase 3 local container composition
 ├── docs/
 │   ├── ARCHITECTURE.md                # arc42 & OMG MDA formal specification
 │   ├── SYSTEM_INTERNALS.md            # Deep math, H3 bitfields & storage internals
@@ -199,14 +211,18 @@ delivery-platform/
 ├── k8s/
 │   ├── ingress/                       # Single-port ingress manifests (port 8080)
 │   ├── postgres/                      # PostGIS 16 StatefulSet with strict cgroups
+│   ├── auth-service/                  # Auth deployment & ClusterIP service
 │   ├── catalog-service/               # Catalog deployment & ClusterIP service
 │   └── order-service/                 # Order deployment & ClusterIP service
 ├── migrations/
+│   ├── auth-service/                  # Flyway V1 DDL: Users, OTPs, Refresh tokens
 │   ├── catalog-service/               # Flyway V1 DDL: PostGIS geography types
-│   └── order-service/                 # Flyway V1 DDL: Partitioned outbox & orders
+│   ├── order-service/                 # Flyway V1 DDL: Partitioned outbox & orders
+│   └── payment-service/               # Flyway V1 DDL: Double-entry ledger
 ├── services/
-│   ├── catalog-service/               # Spring Boot 3 / Hibernate Spatial 6.4
-│   ├── order-service/                 # Spring Boot 3 / Outbox Partition Scheduler
+│   ├── auth-service/                  # Ed25519 JWT, JWKS, and passwordless OTP
+│   ├── catalog-service/               # Uber H3 Res 8, 86-ing items, PostGIS 4326
+│   ├── order-service/                 # 1-to-1 lease FSM, Saga daemon, Outbox
 │   ├── local-payment-service/         # Sovereign double-entry ledger mock
 │   └── local-sms-gateway/             # Circular-buffer mock SMS gateway
 ├── mkdocs.yml                         # Material for MkDocs documentation configuration

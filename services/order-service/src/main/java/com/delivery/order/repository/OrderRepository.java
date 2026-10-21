@@ -43,4 +43,11 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
           AND o.created_at < :cutoff
         """, nativeQuery = true)
     List<Order> findStaleOrdersByStatus(@Param("status") String status, @Param("cutoff") Instant cutoff);
+
+    List<Order> findByStatusAndCreatedAtBefore(OrderStatus status, Instant cutoff);
+
+    @Modifying
+    @org.springframework.transaction.annotation.Transactional
+    @Query(value = "UPDATE orders SET created_at = :createdAt WHERE id = :orderId", nativeQuery = true)
+    int updateCreatedAt(@Param("orderId") UUID orderId, @Param("createdAt") Instant createdAt);
 }

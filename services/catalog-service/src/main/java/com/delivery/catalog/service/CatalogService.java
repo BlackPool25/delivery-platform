@@ -43,14 +43,17 @@ public class CatalogService {
     private final RestaurantRepository restaurantRepository;
     private final DishRepository dishRepository;
     private final VideoReelRepository videoReelRepository;
+    private final H3SpatialService h3SpatialService;
     private final GeometryFactory geometryFactory;
 
     public CatalogService(RestaurantRepository restaurantRepository,
                           DishRepository dishRepository,
-                          VideoReelRepository videoReelRepository) {
+                          VideoReelRepository videoReelRepository,
+                          H3SpatialService h3SpatialService) {
         this.restaurantRepository = restaurantRepository;
         this.dishRepository = dishRepository;
         this.videoReelRepository = videoReelRepository;
+        this.h3SpatialService = h3SpatialService;
         this.geometryFactory = new GeometryFactory(new PrecisionModel(), SRID_WGS84);
     }
 
@@ -62,13 +65,17 @@ public class CatalogService {
 
         Polygon deliveryZone = parsePolygonWkt(request.deliveryZoneWkt());
 
+        long h3Cell = (request.h3Res8() != null && request.h3Res8() > 0)
+                ? request.h3Res8()
+                : h3SpatialService.latLngToRes8Cell(request.latitude(), request.longitude());
+
         Restaurant restaurant = new Restaurant(
                 request.name(),
                 request.description(),
                 request.phone(),
                 location,
                 deliveryZone,
-                request.h3Res8(),
+                h3Cell,
                 request.cityId()
         );
 
@@ -119,6 +126,30 @@ public class CatalogService {
                 .stream().map(this::mapToResponse).toList();
     }
 
+    @Transactional(readOnly = true)
+    public com.delivery.catalog.dto.TwoStageSearchResponse searchTwoStageCandidates(double latitude, double longitude, int kRing) {
+        long centerCell = h3SpatialService.latLngToRes8Cell(latitude, longitude);
+        String centerHex = h3SpatialService.cellToHex(centerCell);
+        List<Long> searchCells = h3SpatialService.getGridDisk(centerCell, Math.max(0, kRing));
+
+        List<Restaurant> coarseCandidates = restaurantRepository.findByH3Res8InAndIsActiveTrue(searchCells);
+        List<RestaurantResponse> fineMatches = coarseCandidates.stream()
+                .filter(r -> Boolean.TRUE.equals(restaurantRepository.isLocationCovered(r.getId(), latitude, longitude)))
+                .map(this::mapToResponse)
+                .toList();
+
+        return new com.delivery.catalog.dto.TwoStageSearchResponse(
+                latitude,
+                longitude,
+                centerCell,
+                centerHex,
+                kRing,
+                coarseCandidates.size(),
+                fineMatches.size(),
+                fineMatches
+        );
+    }
+
     @Transactional
     public DishResponse addDish(UUID restaurantId, CreateDishRequest request) {
         Restaurant restaurant = restaurantRepository.findById(restaurantId)
@@ -137,6 +168,13 @@ public class CatalogService {
     }
 
     @Transactional(readOnly = true)
+    public DishResponse getDish(UUID dishId) {
+        Dish dish = dishRepository.findById(dishId)
+                .orElseThrow(() -> new DishNotFoundException(dishId));
+        return mapDishToResponse(dish);
+    }
+
+    @Transactional(readOnly = true)
     public List<DishResponse> getDishesForRestaurant(UUID restaurantId, boolean availableOnly) {
         if (!restaurantRepository.existsById(restaurantId)) {
             throw new RestaurantNotFoundException(restaurantId);
@@ -147,6 +185,12 @@ public class CatalogService {
                 : dishRepository.findByRestaurantId(restaurantId);
 
         return dishes.stream().map(this::mapDishToResponse).toList();
+    }
+
+    @Transactional
+    public DishResponse eightySixDish(UUID dishId) {
+        log.info("86-ing dish from kitchen availability: {}", dishId);
+        return updateDishAvailability(dishId, false);
     }
 
     @Transactional

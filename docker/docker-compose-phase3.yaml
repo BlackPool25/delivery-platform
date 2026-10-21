@@ -1,0 +1,164 @@
+services:
+  postgres:
+    image: postgis/postgis:16-3.4-alpine
+    container_name: delivery-postgres-phase3
+    command: ["postgres", "-c", "config_file=/etc/postgresql/postgresql.conf"]
+    environment:
+      POSTGRES_DB: delivery_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata_phase3:/var/lib/postgresql/data
+      - ./postgresql.conf:/etc/postgresql/postgresql.conf:ro
+      - ../migrations/auth-service/V1__init_auth.sql:/docker-entrypoint-initdb.d/00-init-auth.sql:ro
+      - ../migrations/catalog-service/V1__init_catalog.sql:/docker-entrypoint-initdb.d/01-init-catalog.sql:ro
+      - ../migrations/order-service/V1__init_orders_and_outbox.sql:/docker-entrypoint-initdb.d/02-init-orders-and-outbox.sql:ro
+      - ../migrations/payment-service/V1__init_payment_ledger.sql:/docker-entrypoint-initdb.d/03-init-payment-ledger.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d delivery_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - delivery-network
+
+  auth-service:
+    build:
+      context: ..
+      dockerfile: services/auth-service/Dockerfile
+    container_name: auth-service
+    depends_on:
+      postgres:
+        condition: service_healthy
+      local-sms-gateway:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: local
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/delivery_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      SMS_GATEWAY_URL: http://local-sms-gateway:8080
+    ports:
+      - "8081:8080"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - delivery-network
+
+  local-payment-service:
+    build:
+      context: ..
+      dockerfile: services/local-payment-service/Dockerfile
+    container_name: local-payment-service
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: local
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/delivery_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+    ports:
+      - "8082:8080"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - delivery-network
+
+  local-sms-gateway:
+    build:
+      context: ..
+      dockerfile: services/local-sms-gateway/Dockerfile
+    container_name: local-sms-gateway
+    ports:
+      - "8083:8080"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - delivery-network
+
+  ntfy:
+    image: binwiederhier/ntfy:v2.11.0
+    container_name: delivery-ntfy
+    command: ["ntfy", "serve"]
+    environment:
+      NTFY_BASE_URL: "http://localhost:8080/push"
+      NTFY_BEHIND_PROXY: "true"
+      NTFY_LISTEN_HTTP: ":80"
+    ports:
+      - "8084:80"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/v1/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - delivery-network
+
+  catalog-service:
+    build:
+      context: ..
+      dockerfile: services/catalog-service/Dockerfile
+    container_name: catalog-service
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: local
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/delivery_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+    ports:
+      - "8085:8080"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - delivery-network
+
+  order-service:
+    build:
+      context: ..
+      dockerfile: services/order-service/Dockerfile
+    container_name: order-service
+    depends_on:
+      postgres:
+        condition: service_healthy
+      local-payment-service:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: local
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/delivery_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      PAYMENT_SERVICE_URL: http://local-payment-service:8080
+    ports:
+      - "8086:8080"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - delivery-network
+
+volumes:
+  pgdata_phase3:
+
+networks:
+  delivery-network:
+    name: delivery-network
+    driver: bridge

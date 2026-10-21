@@ -30,6 +30,27 @@ public class GlobalExceptionHandler {
                 .body(new ErrorResponse(HttpStatus.CONFLICT.value(), "Conflict", ex.getMessage(), Instant.now()));
     }
 
+    @ExceptionHandler(LeaseExpiredOrClaimedException.class)
+    public ResponseEntity<ErrorResponse> handleLeaseExpiredOrClaimed(LeaseExpiredOrClaimedException ex) {
+        log.warn("Lease conflict: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(new ErrorResponse(HttpStatus.CONFLICT.value(), "Conflict", ex.getMessage(), Instant.now()));
+    }
+
+    @ExceptionHandler(InvalidVerificationPinException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidPin(InvalidVerificationPinException ex) {
+        log.warn("Invalid verification PIN: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponse(HttpStatus.BAD_REQUEST.value(), "Bad Request", ex.getMessage(), Instant.now()));
+    }
+
+    @ExceptionHandler(IllegalOrderStateException.class)
+    public ResponseEntity<ErrorResponse> handleIllegalState(IllegalOrderStateException ex) {
+        log.warn("Illegal order state transition: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(new ErrorResponse(HttpStatus.CONFLICT.value(), "Conflict", ex.getMessage(), Instant.now()));
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationErrors(MethodArgumentNotValidException ex) {
         String errorMsg = ex.getBindingResult().getFieldErrors().stream()
