@@ -1,0 +1,38 @@
+server:
+  port: 8080
+  shutdown: graceful
+
+spring:
+  application:
+    name: tracking-service
+  threads:
+    virtual:
+      enabled: true
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      timeout: 2000ms
+      lettuce:
+        pool:
+          max-active: 32
+          max-idle: 16
+          min-idle: 4
+
+tracking:
+  velocity:
+    max-kmh: 120.0
+  telemetry:
+    ttl-seconds: 86400 # 24 hours retention for latest courier telemetry
+    history-limit: 1000 # Max breadcrumbs per courier
+  h3:
+    resolution: 8
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always

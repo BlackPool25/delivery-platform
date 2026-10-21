@@ -1,0 +1,112 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: transcode-worker
+  namespace: delivery-prod
+  labels:
+    app.kubernetes.io/name: transcode-worker
+    app.kubernetes.io/part-of: delivery-platform
+    app.kubernetes.io/component: gpu-transcoder
+spec:
+  replicas: 1 # Fixed 1 pod: GPU silicon is scaled via internal worker threads (prefetch_count: 4)
+  revisionHistoryLimit: 5
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: transcode-worker
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: transcode-worker
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/actuator/prometheus"
+        prometheus.io/port: "8080"
+    spec:
+      terminationGracePeriodSeconds: 60
+      securityContext:
+        privileged: false
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+        supplementalGroups: [44, 107] # video (44) and render (107) host GIDs for Direct Rendering Manager
+      containers:
+        - name: transcode-worker
+          image: ghcr.io/delivery-platform/transcode-worker:1.0.0
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+          env:
+            - name: LIBVA_DRIVER_NAME
+              value: "radeonsi"
+            - name: HSA_OVERRIDE_GFX_VERSION
+              value: "11.0.0"
+            - name: VAAPI_DEVICE
+              value: "/dev/dri/renderD128"
+            - name: MINIO_ENDPOINT
+              value: "http://minio-service:9000"
+            - name: MINIO_ACCESS_KEY
+              value: "minioadmin"
+            - name: MINIO_SECRET_KEY
+              value: "minioadmin"
+            - name: MINIO_BUCKET
+              value: "delivery-media"
+            - name: RABBITMQ_HOST
+              value: "rabbitmq-service"
+            - name: RABBITMQ_PORT
+              value: "5672"
+            - name: SPRING_PROFILES_ACTIVE
+              value: "prod"
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "1024Mi"
+            limits:
+              cpu: "2000m"
+              memory: "2048Mi"
+          volumeMounts:
+            - name: dri-dev
+              mountPath: /dev/dri
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: http
+            initialDelaySeconds: 25
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 2
+      volumes:
+        - name: dri-dev
+          hostPath:
+            path: /dev/dri
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: transcode-worker
+  namespace: delivery-prod
+  labels:
+    app.kubernetes.io/name: transcode-worker
+    app.kubernetes.io/part-of: delivery-platform
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: transcode-worker
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http
+      protocol: TCP

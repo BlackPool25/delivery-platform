@@ -1,0 +1,126 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: delivery-platform-ingress
+  namespace: delivery-prod
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/proxy-body-size: "100m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    nginx.ingress.kubernetes.io/websocket-services: "tracking-service,ntfy-service"
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/cors-allow-origin: "*"
+    nginx.ingress.kubernetes.io/cors-allow-methods: "GET, POST, PUT, PATCH, DELETE, OPTIONS"
+    nginx.ingress.kubernetes.io/cors-allow-headers: "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization,Idempotency-Key,X-Simulate-Delay-Ms,X-Simulate-Failure,Upload-Length,Upload-Offset,Upload-Metadata,Tus-Resumable"
+spec:
+  rules:
+  - http:
+      paths:
+      # Passwordless Auth & Ed25519 JWKS
+      - path: /api/v1/auth
+        pathType: Prefix
+        backend:
+          service:
+            name: auth-service
+            port: { number: 8080 }
+
+      # Standard OIDC Discovery JWKS Endpoint
+      - path: /.well-known
+        pathType: Prefix
+        backend:
+          service:
+            name: auth-service
+            port: { number: 8080 }
+
+      # Core Catalog Service (H3 & PostGIS Geodesic)
+      - path: /api/v1/catalog
+        pathType: Prefix
+        backend:
+          service:
+            name: catalog-service
+            port: { number: 8080 }
+
+      # Order Lifecycle FSM & Saga Coordinator
+      - path: /api/v1/orders
+        pathType: Prefix
+        backend:
+          service:
+            name: order-service
+            port: { number: 8080 }
+
+      # Telemetry Ingestion REST API (Phase 4)
+      - path: /api/v1/tracking
+        pathType: Prefix
+        backend:
+          service:
+            name: tracking-service
+            port: { number: 8080 }
+
+      # Persistent Live Telemetry WebSocket Gateway (Phase 4)
+      - path: /ws/tracking
+        pathType: Prefix
+        backend:
+          service:
+            name: tracking-service
+            port: { number: 8080 }
+
+      # Resumable Chunked TUS Video Media Ingest API (Phase 4)
+      - path: /api/v1/media
+        pathType: Prefix
+        backend:
+          service:
+            name: media-service
+            port: { number: 8080 }
+
+      # Dedicated Sovereign Payment Ledger
+      - path: /api/v1/payments
+        pathType: Prefix
+        backend:
+          service:
+            name: local-payment-service
+            port: { number: 8080 }
+
+      # Local Telephony & SMS OTP Gateway
+      - path: /api/v1/sms
+        pathType: Prefix
+        backend:
+          service:
+            name: local-sms-gateway
+            port: { number: 8080 }
+
+      # Local Sovereign Push Broker (ntfy WebSockets / SSE)
+      - path: /push
+        pathType: Prefix
+        backend:
+          service:
+            name: ntfy-service
+            port: { number: 80 }
+
+      # Sovereign MinIO S3 Object Storage
+      - path: /media-storage
+        pathType: Prefix
+        backend:
+          service:
+            name: minio-service
+            port: { number: 9000 }
+
+      # Administrative Consoles
+      - path: /admin/sms-inbox
+        pathType: Prefix
+        backend:
+          service:
+            name: local-sms-gateway
+            port: { number: 8080 }
+      - path: /admin/minio
+        pathType: Prefix
+        backend:
+          service:
+            name: minio-service
+            port: { number: 9001 }
+      - path: /admin/rabbitmq
+        pathType: Prefix
+        backend:
+          service:
+            name: rabbitmq-service
+            port: { number: 15672 }

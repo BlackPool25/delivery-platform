@@ -1,0 +1,31 @@
+server:
+  port: 0
+
+spring:
+  application:
+    name: transcode-worker-test
+  threads:
+    virtual:
+      enabled: true
+  rabbitmq:
+    listener:
+      simple:
+        auto-startup: false # Prevent consumer from auto-connecting during pipeline-focused tests
+
+transcode:
+  vaapi-device: /dev/dri/renderD128
+  libva-driver: radeonsi
+  hsa-override-gfx: 11.0.0
+  temp-dir: ${java.io.tmpdir}/delivery-transcode-test
+
+minio:
+  endpoint: http://localhost:9000
+  access-key: minioadmin
+  secret-key: minioadmin
+  bucket: delivery-media-test
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

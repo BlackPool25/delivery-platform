@@ -1,0 +1,27 @@
+server:
+  port: 0
+
+spring:
+  application:
+    name: media-service-test
+  threads:
+    virtual:
+      enabled: true
+
+media:
+  staging-dir: ${java.io.tmpdir}/delivery-media-test/staging
+  tus:
+    max-size-bytes: 10485760 # 10 MB for test
+  rabbitmq:
+    exchange: video.transcode.exchange
+    queue: video.transcode.jobs
+    routing-key: video.transcode.job
+
+minio:
+  bucket: delivery-media-test
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

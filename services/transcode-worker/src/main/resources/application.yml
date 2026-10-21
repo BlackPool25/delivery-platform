@@ -1,0 +1,44 @@
+server:
+  port: 8080
+  shutdown: graceful
+
+spring:
+  application:
+    name: transcode-worker
+  threads:
+    virtual:
+      enabled: true
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
+    listener:
+      simple:
+        prefetch: 4 # Strict constraint: prefetch_count 4 for Dual VCN 4.0 engines
+        concurrency: 4
+        max-concurrency: 4
+        acknowledge-mode: manual
+
+minio:
+  endpoint: ${MINIO_ENDPOINT:http://localhost:9000}
+  access-key: ${MINIO_ACCESS_KEY:minioadmin}
+  secret-key: ${MINIO_SECRET_KEY:minioadmin}
+  bucket: ${MINIO_BUCKET:delivery-media}
+
+transcode:
+  vaapi-device: ${VAAPI_DEVICE:/dev/dri/renderD128}
+  libva-driver: ${LIBVA_DRIVER_NAME:radeonsi}
+  hsa-override-gfx: ${HSA_OVERRIDE_GFX_VERSION:11.0.0}
+  temp-dir: ${TRANSCODE_TEMP_DIR:/tmp/transcode}
+  rabbitmq:
+    queue: video.transcode.jobs
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
