@@ -199,6 +199,12 @@ public class OrderService {
                 .stream().map(this::mapToResponse).toList();
     }
 
+    @Transactional(readOnly = true)
+    public List<OrderResponse> getPendingDispatchOrders() {
+        return orderRepository.findPendingDispatchOrders()
+                .stream().map(this::mapToResponse).toList();
+    }
+
     @Transactional
     public OrderResponse acceptOrder(UUID orderId) {
         Order order = orderRepository.findById(orderId)

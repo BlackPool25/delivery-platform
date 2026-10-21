@@ -147,6 +147,10 @@ public class OrderLifecycleAndSagaVerificationTest {
         OrderResponse leasedRes = orderService.offerDispatchLease(orderId, courierId, 30);
         assertThat(leasedRes.dispatchLeaseExpiresAt()).isAfter(Instant.now());
 
+        // Verify discovery of pending dispatch orders
+        List<OrderResponse> pendingOffers = orderService.getPendingDispatchOrders();
+        assertThat(pendingOffers).extracting(OrderResponse::id).contains(orderId);
+
         // 7. Courier Accepts Leased Offer
         OrderResponse claimedRes = orderService.claimDispatch(orderId, courierId);
         assertThat(claimedRes.status()).isEqualTo(OrderStatus.DISPATCHED);

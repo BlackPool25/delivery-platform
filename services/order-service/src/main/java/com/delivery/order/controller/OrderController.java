@@ -48,6 +48,11 @@ public class OrderController {
         return ResponseEntity.ok(orderService.getOrdersForUser(userId));
     }
 
+    @GetMapping("/pending-dispatch")
+    public ResponseEntity<List<OrderResponse>> getPendingDispatchOrders() {
+        return ResponseEntity.ok(orderService.getPendingDispatchOrders());
+    }
+
     @PostMapping("/{id}/pay")
     public ResponseEntity<OrderResponse> processPaymentHold(@PathVariable UUID id) {
         return ResponseEntity.ok(orderService.processPaymentHold(id));

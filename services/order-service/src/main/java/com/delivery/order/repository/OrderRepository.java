@@ -39,6 +39,14 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
 
     @Query(value = """
         SELECT o.* FROM orders o
+        WHERE o.courier_id IS NULL
+          AND o.dispatch_lease_expires_at > NOW()
+        ORDER BY o.created_at ASC
+        """, nativeQuery = true)
+    List<Order> findPendingDispatchOrders();
+
+    @Query(value = """
+        SELECT o.* FROM orders o
         WHERE o.status = :status
           AND o.created_at < :cutoff
         """, nativeQuery = true)
